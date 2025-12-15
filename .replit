@@ -1,0 +1,49 @@
+modules = ["web", "bash", "nodejs-20", "python-3.11"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libyaml", "openjpeg", "openssl", "pkg-config", "qhull", "rustc", "tcl", "tk", "zlib"]
+
+[userenv]
+
+[userenv.shared]
+POSTGRES_HOST = "helium"
+POSTGRES_PORT = "5432"
+POSTGRES_DB = "heliumdb"
+POSTGRES_USER = "postgres"
+ENCRYPTION_KEY = "bzkPWCHY85RWlW3SEIp07HRH4_SaC9KZbUmYYO2cX2o="
+POSTGRES_PASSWORD = "password"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "TI-Monitoring"
+
+[[workflows.workflow]]
+name = "TI-Monitoring"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=2", "app:server"]

@@ -433,10 +433,9 @@ def _harden_dash_update_component():
 def _set_security_headers(resp: Response):
     try:
         resp.headers.setdefault('X-Content-Type-Options', 'nosniff')
-        resp.headers.setdefault('X-Frame-Options', 'DENY')
         resp.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
         resp.headers.setdefault('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
-        # Basic CSP tuned for Dash/Plotly usage
+        # Basic CSP tuned for Dash/Plotly usage - allow framing for Replit preview
         csp = (
             "default-src 'self'; "
             "img-src 'self' data: blob: https:; "
@@ -444,7 +443,7 @@ def _set_security_headers(resp: Response):
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; "
             "font-src 'self' https: data:; "
             "connect-src 'self' https: data:; "
-            "frame-ancestors 'none'"
+            "frame-ancestors *"
         )
         resp.headers.setdefault('Content-Security-Policy', csp)
         # HSTS only when behind https
@@ -1081,4 +1080,4 @@ def toggle_admin_menu_link(auth_data):
 # Pages are automatically registered via dash.register_page in their respective files
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=False, host='0.0.0.0', port=5000)

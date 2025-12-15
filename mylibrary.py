@@ -66,15 +66,23 @@ def get_db_conn():
 
 def init_timescaledb_schema():
     with get_db_conn() as conn, conn.cursor() as cur:
+        # Try to create TimescaleDB extension if available, but don't fail if not
+        try:
+            cur.execute("CREATE EXTENSION IF NOT EXISTS timescaledb;")
+            conn.commit()
+            has_timescaledb = True
+        except Exception:
+            conn.rollback()
+            has_timescaledb = False
+            print("TimescaleDB extension not available, using regular PostgreSQL")
+        
         cur.execute("""
-            CREATE EXTENSION IF NOT EXISTS timescaledb;
             CREATE TABLE IF NOT EXISTS measurements (
               ci TEXT NOT NULL,
               ts TIMESTAMPTZ NOT NULL,
               status SMALLINT NOT NULL,
               PRIMARY KEY (ci, ts)
             );
-            SELECT create_hypertable('measurements','ts', if_not_exists => TRUE);
             
             CREATE TABLE IF NOT EXISTS ci_metadata (
               ci TEXT PRIMARY KEY,
@@ -88,7 +96,23 @@ def init_timescaledb_schema():
               updated_at TIMESTAMPTZ DEFAULT NOW()
             );
         """)
-        # Optional: continuous aggregates, retention policies can be added later
+        conn.commit()
+        
+        # Create hypertable if TimescaleDB is available
+        if has_timescaledb:
+            try:
+                cur.execute("SELECT create_hypertable('measurements','ts', if_not_exists => TRUE);")
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                print(f"Hypertable creation skipped: {e}")
+        
+        # Create index for performance if not using hypertable
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_measurements_ts ON measurements(ts);
+            CREATE INDEX IF NOT EXISTS idx_measurements_ci ON measurements(ci);
+        """)
+        conn.commit()
 
 def write_measurements(rows):
     """rows: iterable of (ci, ts(datetime|str|epoch), status:int)"""
@@ -130,11 +154,20 @@ def ingest_hdf5_to_timescaledb(hdf5_path: str, max_rows: Optional[int] = None) -
     return 0
 
 def setup_timescaledb_retention(keep_days: int = 185) -> None:
-    """Setzt eine Retention-Policy (drop_chunks) auf measurements; idempotent."""
-    with get_db_conn() as conn, conn.cursor() as cur:
-        # add_retention_policy ist idempotent mit if_not_exists => TRUE
-        sql = f"SELECT add_retention_policy('measurements', INTERVAL '{int(keep_days)} days', if_not_exists => TRUE);"
-        cur.execute(sql)
+    """Setzt eine Retention-Policy (drop_chunks) auf measurements; idempotent.
+    Falls TimescaleDB nicht verfügbar ist, wird nichts gemacht."""
+    try:
+        with get_db_conn() as conn, conn.cursor() as cur:
+            # Check if TimescaleDB is available
+            cur.execute("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'timescaledb');")
+            has_timescaledb = cur.fetchone()[0]
+            if has_timescaledb:
+                sql = f"SELECT add_retention_policy('measurements', INTERVAL '{int(keep_days)} days', if_not_exists => TRUE);"
+                cur.execute(sql)
+            else:
+                print("TimescaleDB not available, skipping retention policy setup")
+    except Exception as e:
+        print(f"Retention policy setup skipped: {e}")
 
 def init_otp_database_schema():
     """Initialize database schema for multi-user OTP system"""
