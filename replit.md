@@ -52,6 +52,14 @@ The application uses PostgreSQL for storing:
 - Support for 90+ notification channels via Apprise
 - Admin dashboard for user management
 
+## UI Design
+The app features a modern medical dashboard design with:
+- **Teal/Cyan color scheme** (primary: #0d9488)
+- **Left sidebar navigation** (64px width) with icon buttons and tooltips
+- **Card-based layout** for content sections
+- **Active page highlighting** in sidebar navigation
+- **Configurable logo** via config.yaml header.logo settings
+
 ## Notes
 - The app was designed for TimescaleDB but has been adapted to work with standard PostgreSQL
 - Data is fetched from the gematik API: https://ti-lage.prod.ccs.gematik.solutions/lageapi/v1/tilage/bu/PU
