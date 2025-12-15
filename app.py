@@ -238,62 +238,52 @@ def serve_layout():
             dcc.Location(id='loc'),
             html.Link(id='canonical-link', rel='canonical', href='/'),
             html.Link(rel='me', href='https://mastodon.ti-stats.net/@tistatus'),
-            html.Header(children = [
-                html.Div(children=[
-                    html.Div(id='logo-wrapper', children = [
-                        html.A(href=app_home_url, children = [
-                            html.Img(id='logo', src=logo_path, alt=logo_alt, height=logo_height, width=logo_width)
-                        ])
-                    ], style={'display': 'flex', 'alignItems': 'center', 'gap': '12px'}),
-                    html.H1(children=header_title, style={'margin': '0', 'fontSize': '1.6rem'})
-                ], style={'display': 'flex', 'alignItems': 'center', 'gap': '16px'}),
-                # Hamburger-Menü (rechts)
-                html.Div(children=[
-                    html.Details(children=[
-                        html.Summary(
-                            html.I(className='material-icons', children='menu'),
-                            style={'listStyle': 'none', 'cursor': 'pointer', 'padding': '6px 8px', 'borderRadius': '8px', 'border': '1px solid #e0e0e0'},
-                            className='hamburger-menu-trigger'  # Add CSS class for easier identification
-                        ),
-                        html.Div(id='hamburger-menu-content', children=[
-                            html.A(
-                                [
-                                    html.Span(html.I(className='material-icons', children='home'), style={'marginRight': '10px'}),
-                                    html.Span('Start')
-                                ],
-                                href='/',
-                                style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 12px', 'textDecoration': 'none', 'color': '#2c3e50', 'borderRadius': '6px'}
-                            ),
-                            html.A(
-                                [
-                                    html.Span(html.I(className='material-icons', children='analytics'), style={'marginRight': '10px'}),
-                                    html.Span('Statistiken')
-                                ],
-                                href='/stats',
-                                style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 12px', 'textDecoration': 'none', 'color': '#2c3e50', 'borderRadius': '6px'}
-                            ),
-                            html.A(
-                                [
-                                    html.Span(html.I(className='material-icons', children='notifications'), style={'marginRight': '10px'}),
-                                    html.Span('Benachrichtigungen')
-                                ],
-                                href='/notifications',
-                                style={'display': 'flex', 'alignItems': 'center', 'padding': '10px 12px', 'textDecoration': 'none', 'color': '#2c3e50', 'borderRadius': '6px'}
-                            ),
-                            # Admin link (hidden by default, shown for admin users)
-                            html.A(
-                                [
-                                    html.Span(html.I(className='material-icons', children='admin_panel_settings'), style={'marginRight': '10px'}),
-                                    html.Span('Admin')
-                                ],
-                                href='/admin',
-                                id='admin-menu-link',
-                                style={'display': 'none', 'alignItems': 'center', 'padding': '10px 12px', 'textDecoration': 'none', 'color': '#e74c3c', 'borderRadius': '6px'}
-                            )
-                        ], style={'position': 'absolute', 'right': '0', 'marginTop': '8px', 'background': '#ffffff', 'border': '1px solid #e0e0e0', 'borderRadius': '10px', 'padding': '8px', 'boxShadow': '0 8px 24px rgba(0,0,0,0.12)', 'minWidth': '220px', 'display': 'grid', 'rowGap': '4px'})
-                    ], style={'position': 'relative'})
-                ], style={'marginLeft': 'auto'})
-            ], style={'display': 'flex', 'alignItems': 'center', 'gap': '16px', 'padding': '8px 12px'}),
+            
+            # Left Sidebar Navigation
+            html.Div(className='sidebar', children=[
+                # Logo (uses config from header settings)
+                html.Div(className='sidebar-logo', children=[
+                    html.A(href=app_home_url, children=[
+                        html.Img(src=logo_path, alt=logo_alt, style={'width': '100%', 'height': '100%', 'objectFit': 'contain'})
+                    ])
+                ]),
+                # Navigation items (with IDs for active class callback)
+                html.Nav(className='sidebar-nav', children=[
+                    html.A(
+                        html.I(className='material-icons', children='home'),
+                        href='/',
+                        id='nav-home',
+                        className='sidebar-nav-item',
+                        **{'data-tooltip': 'Start'}
+                    ),
+                    html.A(
+                        html.I(className='material-icons', children='analytics'),
+                        href='/stats',
+                        id='nav-stats',
+                        className='sidebar-nav-item',
+                        **{'data-tooltip': 'Statistiken'}
+                    ),
+                    html.A(
+                        html.I(className='material-icons', children='notifications'),
+                        href='/notifications',
+                        id='nav-notifications',
+                        className='sidebar-nav-item',
+                        **{'data-tooltip': 'Benachrichtigungen'}
+                    ),
+                ]),
+                # Bottom section with admin link (hidden by default, shown for admins via callback)
+                html.Div(className='sidebar-bottom', children=[
+                    html.A(
+                        html.I(className='material-icons', children='admin_panel_settings'),
+                        href='/admin',
+                        id='admin-menu-link',
+                        className='sidebar-nav-item',
+                        style={'display': 'none'},
+                        **{'data-tooltip': 'Admin'}
+                    ),
+                ]),
+            ]),
+            
             html.Main(children = [
                 html.Div(id='page-container', children=[
                     dcc.Loading(
@@ -1060,7 +1050,7 @@ def track_page_view():
         print(f"Error tracking page view: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
-# Callback to show/hide admin link in hamburger menu
+# Callback to show/hide admin link in sidebar
 @callback(
     Output('admin-menu-link', 'style'),
     [Input('auth-status', 'data')],
@@ -1073,9 +1063,31 @@ def toggle_admin_menu_link(auth_data):
     
     user_email = auth_data.get('email', '')
     if is_admin_user(user_email):
-        return {'display': 'flex', 'alignItems': 'center', 'padding': '10px 12px', 'textDecoration': 'none', 'color': '#e74c3c', 'borderRadius': '6px'}
+        return {'display': 'flex'}
     else:
         return {'display': 'none'}
+
+# Callback to highlight active navigation item in sidebar
+@callback(
+    [Output('nav-home', 'className'),
+     Output('nav-stats', 'className'),
+     Output('nav-notifications', 'className')],
+    [Input('loc', 'pathname')],
+    prevent_initial_call=False
+)
+def update_nav_active(pathname):
+    """Update sidebar navigation to show active page"""
+    base_class = 'sidebar-nav-item'
+    active_class = 'sidebar-nav-item active'
+    
+    if pathname == '/' or pathname == '' or pathname is None:
+        return active_class, base_class, base_class
+    elif pathname == '/stats':
+        return base_class, active_class, base_class
+    elif pathname == '/notifications':
+        return base_class, base_class, active_class
+    else:
+        return base_class, base_class, base_class
 
 # Pages are automatically registered via dash.register_page in their respective files
 
