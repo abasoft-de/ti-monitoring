@@ -210,14 +210,10 @@ def serve_layout():
     config_file_name = None
     config_url = core_config.get('url')
 
-    # Load incidents data from statistics.json
+    # Load only ongoing incidents directly from database
     incidents_data = []
     try:
-        statistics_file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'statistics.json')
-        if os.path.exists(statistics_file_path):
-            with open(statistics_file_path, 'r', encoding='utf-8') as f:
-                stats = json.load(f)
-                incidents_data = stats.get('recent_incidents', [])
+        incidents_data = get_recent_incidents(limit=20, only_enabled=True, only_ongoing=True)
     except Exception as e:
         print(f"Error loading incidents data: {e}")
         incidents_data = []
@@ -342,7 +338,7 @@ def serve_layout():
         ]),
         # Incidents section
         html.Div([
-            html.H3("Letzte Incidents", className='incidents-title'),
+            html.H3("Aktuelle Incidents", className='incidents-title'),
             html.Div([
                 dcc.Store(id='incidents-data-store', data=incidents_data),
                 html.Div(id='incidents-table-container', children=incidents_table)

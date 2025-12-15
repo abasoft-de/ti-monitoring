@@ -270,6 +270,13 @@ def serve_layout():
                         className='sidebar-nav-item',
                         **{'data-tooltip': 'Benachrichtigungen'}
                     ),
+                    html.A(
+                        html.I(className='material-icons', children='history'),
+                        href='/incident-history',
+                        id='nav-history',
+                        className='sidebar-nav-item',
+                        **{'data-tooltip': 'Incident-Verlauf'}
+                    ),
                 ]),
                 # Bottom section with admin link (hidden by default, shown for admins via callback)
                 html.Div(className='sidebar-bottom', children=[
@@ -1071,7 +1078,8 @@ def toggle_admin_menu_link(auth_data):
 @callback(
     [Output('nav-home', 'className'),
      Output('nav-stats', 'className'),
-     Output('nav-notifications', 'className')],
+     Output('nav-notifications', 'className'),
+     Output('nav-history', 'className')],
     [Input('loc', 'pathname')],
     prevent_initial_call=False
 )
@@ -1081,13 +1089,15 @@ def update_nav_active(pathname):
     active_class = 'sidebar-nav-item active'
     
     if pathname == '/' or pathname == '' or pathname is None:
-        return active_class, base_class, base_class
+        return active_class, base_class, base_class, base_class
     elif pathname == '/stats':
-        return base_class, active_class, base_class
+        return base_class, active_class, base_class, base_class
     elif pathname == '/notifications':
-        return base_class, base_class, active_class
+        return base_class, base_class, active_class, base_class
+    elif pathname == '/incident-history':
+        return base_class, base_class, base_class, active_class
     else:
-        return base_class, base_class, base_class
+        return base_class, base_class, base_class, base_class
 
 # Pages are automatically registered via dash.register_page in their respective files
 
