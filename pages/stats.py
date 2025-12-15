@@ -497,34 +497,50 @@ def serve_layout():
                     ],
                     sort_action='native',
                     sort_mode='multi',
-                    style_table={'overflowX': 'auto', 'minWidth': '100%', 'backgroundColor': 'var(--bg-color)', 'color': 'var(--text-color)'},
-                    style_cell={'padding': '8px', 'fontSize': '0.95rem', 'backgroundColor': 'var(--bg-color)', 'color': 'var(--text-color)', 'border': '1px solid var(--border-color)'},
+                    style_table={'overflowX': 'auto', 'minWidth': '100%', 'borderRadius': '8px'},
+                    style_cell={'padding': '12px 16px', 'fontSize': '13px', 'backgroundColor': '#ffffff', 'color': '#334155', 'border': 'none', 'borderBottom': '1px solid #f1f5f9'},
                     style_cell_conditional=[
-                        {"if": {"column_id": "organization"}, "textAlign": "left", "maxWidth": "120px", "minWidth": "100px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "name"}, "textAlign": "left", "maxWidth": "150px", "minWidth": "120px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "product"}, "textAlign": "left", "maxWidth": "120px", "minWidth": "100px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "incidents"}, "textAlign": "right", "maxWidth": "80px", "minWidth": "60px", 'fontVariantNumeric': 'tabular-nums'},
-                        {"if": {"column_id": "downtime_minutes"}, "textAlign": "right", "maxWidth": "100px", "minWidth": "80px", 'fontVariantNumeric': 'tabular-nums'},
-                        {"if": {"column_id": "availability_percentage"}, "textAlign": "right", "maxWidth": "100px", "minWidth": "80px", 'fontVariantNumeric': 'tabular-nums'},
+                        {"if": {"column_id": "organization"}, "textAlign": "left", "maxWidth": "180px", "minWidth": "120px", "overflow": "hidden", "textOverflow": "ellipsis"},
+                        {"if": {"column_id": "name"}, "textAlign": "left", "maxWidth": "200px", "minWidth": "150px", "overflow": "hidden", "textOverflow": "ellipsis"},
+                        {"if": {"column_id": "product"}, "textAlign": "left", "maxWidth": "150px", "minWidth": "100px", "overflow": "hidden", "textOverflow": "ellipsis"},
+                        {"if": {"column_id": "incidents"}, "textAlign": "right", "maxWidth": "100px", "minWidth": "80px", 'fontVariantNumeric': 'tabular-nums', 'fontWeight': '500'},
+                        {"if": {"column_id": "downtime_minutes"}, "textAlign": "right", "maxWidth": "140px", "minWidth": "100px", 'fontVariantNumeric': 'tabular-nums'},
+                        {"if": {"column_id": "availability_percentage"}, "textAlign": "right", "maxWidth": "130px", "minWidth": "100px", 'fontVariantNumeric': 'tabular-nums'},
                     ],
-                    # Header sichtbar (nutzt Theme-Variablen)
-                    style_header={'backgroundColor': 'var(--card-bg-color)', 'color': 'var(--text-color)', 'fontWeight': 'bold', 'border': '1px solid var(--border-color)'},
+                    style_header={
+                        'backgroundColor': '#f8fafc',
+                        'color': '#475569',
+                        'fontWeight': '600',
+                        'fontSize': '12px',
+                        'textTransform': 'uppercase',
+                        'letterSpacing': '0.5px',
+                        'borderBottom': '2px solid #e2e8f0',
+                        'padding': '12px 16px'
+                    },
                     style_data_conditional=[
                         {
                             'if': {'state': 'active'},
-                            'backgroundColor': 'var(--primary-color)',
-                            'color': 'white',
+                            'backgroundColor': '#ccfbf1',
+                            'color': '#0f766e',
                         },
                         {
                             'if': {'state': 'selected'},
-                            'backgroundColor': 'var(--primary-color-light)',
-                            'color': 'white',
+                            'backgroundColor': '#f0fdfa',
+                            'color': '#0d9488',
+                        },
+                        {
+                            'if': {'row_index': 'odd'},
+                            'backgroundColor': '#ffffff',
+                        },
+                        {
+                            'if': {'row_index': 'even'},
+                            'backgroundColor': '#ffffff',
                         }
                     ],
                     css=[
                         {
                             'selector': '.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner table',
-                            'rule': 'cursor: pointer;'
+                            'rule': 'cursor: pointer; border-collapse: collapse;'
                         },
                         {
                             'selector': '.dash-table-container',
@@ -533,6 +549,10 @@ def serve_layout():
                         {
                             'selector': '.dash-table-container .dash-spreadsheet-container',
                             'rule': 'min-width: 600px;'
+                        },
+                        {
+                            'selector': 'tr:hover td',
+                            'rule': 'background-color: #f8fafc !important;'
                         }
                     ],
                     tooltip_data=[
