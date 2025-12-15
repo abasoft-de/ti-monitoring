@@ -1,7 +1,7 @@
 import dash
 from dash import html, dcc
 from dash import dash_table
-from dash import Input, Output, callback, no_update, State
+from dash import Input, Output, callback, no_update, State, ALL
 from mylibrary import *
 import yaml
 import os
@@ -463,8 +463,67 @@ def serve_layout():
         del cis
         gc.collect()
 
+    top_unstable_data = [
+        {
+            'ci': entry['ci'],
+            'name': (
+                load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('name')
+                or entry.get('name', '')
+            ),
+            'organization': truncate_organization(
+                (
+                    load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('organization')
+                    or entry.get('organization', '')
+                )
+            ),
+            'product': (
+                load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('product')
+                or entry.get('product', '')
+            ),
+            'incidents': int(entry['incidents']),
+            'downtime_minutes': round(float(entry.get('downtime_minutes', 0.0))),
+            'availability_percentage': round(float(entry.get('availability_percentage', 0.0)), 2),
+        }
+        for entry in sorted(
+            overall_stats.get('top_unstable_cis_by_incidents', []),
+            key=lambda entry: (
+                float(entry.get('availability_percentage', 0.0)),
+                -int(entry['incidents'])
+            )
+        )
+    ]
+
     layout = html.Div([
         html.P('Hier finden Sie eine umfassende Gesamtstatistik aller Configuration Items. Neue Daten werden stündlich neu berechnet. Laden Sie die Seite ggfs. neu, um die Ansicht zu aktualisieren.'),
+
+        # Top instabile CIs Section (moved to top with filter and sort)
+        html.Div([
+            html.H3("Top instabile CIs (Incidents)", className='stats-title'),
+            dcc.Input(
+                id='unstable-cis-filter',
+                type='text',
+                placeholder='CIs filtern (CI, Organisation, Produkt oder Name)',
+                style={
+                    'width': '100%',
+                    'boxSizing': 'border-box',
+                    'marginBottom': '16px',
+                    'padding': '10px 14px',
+                    'borderRadius': '8px',
+                    'backgroundColor': '#ffffff',
+                    'color': '#1e293b',
+                    'border': '1px solid #cbd5e1',
+                    'fontSize': '14px'
+                },
+                className='incidents-filter-input'
+            ),
+            dcc.Store(id='unstable-cis-sort-state', data={'by': 'incidents', 'asc': False}),
+            dcc.Store(id='unstable-cis-data-store', data=top_unstable_data),
+            html.Div(
+                id='unstable-cis-table-container',
+                className='incidents-table-container',
+                style={'maxHeight': '500px', 'overflowY': 'auto'}
+            )
+        ], className='incidents-section'),
 
         # Cache information
         html.Div(className='cache-info', children=[
@@ -477,163 +536,171 @@ def serve_layout():
 
         # Location component for navigation
         dcc.Location(id='stats-location', refresh=False),
-
-        # Top-Listen (sortable DataTable)
-        html.Div(className='overall-statistics box', children=[
-            html.Div(className='stat-card', children=[
-                html.H4('🚨 Top instabile CIs (Incidents)'),
-                (lambda rows: dash_table.DataTable(
-                    id='unstable-cis-table',
-                    data=rows,
-                    row_selectable=False,
-                    row_deletable=False,
-                    columns=[
-                        {"name": "Organisation", "id": "organization"},
-                        {"name": "Name", "id": "name"},
-                        {"name": "Produkt", "id": "product"},
-                        {"name": "Incidents", "id": "incidents", "type": "numeric"},
-                        {"name": "Downtime (Minuten)", "id": "downtime_minutes", "type": "numeric", "format": {"specifier": ".0f"}},
-                        {"name": "Verfügbarkeit (%)", "id": "availability_percentage", "type": "numeric", "format": {"specifier": ".2f"}},
-                    ],
-                    sort_action='native',
-                    sort_mode='multi',
-                    style_table={'overflowX': 'auto', 'minWidth': '100%', 'borderRadius': '8px'},
-                    style_cell={'padding': '12px 16px', 'fontSize': '13px', 'backgroundColor': '#ffffff', 'color': '#334155', 'border': 'none', 'borderBottom': '1px solid #f1f5f9'},
-                    style_cell_conditional=[
-                        {"if": {"column_id": "organization"}, "textAlign": "left", "maxWidth": "180px", "minWidth": "120px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "name"}, "textAlign": "left", "maxWidth": "200px", "minWidth": "150px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "product"}, "textAlign": "left", "maxWidth": "150px", "minWidth": "100px", "overflow": "hidden", "textOverflow": "ellipsis"},
-                        {"if": {"column_id": "incidents"}, "textAlign": "right", "maxWidth": "100px", "minWidth": "80px", 'fontVariantNumeric': 'tabular-nums', 'fontWeight': '500'},
-                        {"if": {"column_id": "downtime_minutes"}, "textAlign": "right", "maxWidth": "140px", "minWidth": "100px", 'fontVariantNumeric': 'tabular-nums'},
-                        {"if": {"column_id": "availability_percentage"}, "textAlign": "right", "maxWidth": "130px", "minWidth": "100px", 'fontVariantNumeric': 'tabular-nums'},
-                    ],
-                    style_header={
-                        'backgroundColor': '#f8fafc',
-                        'color': '#475569',
-                        'fontWeight': '600',
-                        'fontSize': '12px',
-                        'textTransform': 'uppercase',
-                        'letterSpacing': '0.5px',
-                        'borderBottom': '2px solid #e2e8f0',
-                        'padding': '12px 16px'
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {'state': 'active'},
-                            'backgroundColor': '#ccfbf1',
-                            'color': '#0f766e',
-                        },
-                        {
-                            'if': {'state': 'selected'},
-                            'backgroundColor': '#f0fdfa',
-                            'color': '#0d9488',
-                        },
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': '#ffffff',
-                        },
-                        {
-                            'if': {'row_index': 'even'},
-                            'backgroundColor': '#ffffff',
-                        }
-                    ],
-                    css=[
-                        {
-                            'selector': '.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner table',
-                            'rule': 'cursor: pointer; border-collapse: collapse; width: 100%;'
-                        },
-                        {
-                            'selector': '.dash-table-container',
-                            'rule': 'overflow-x: auto; -webkit-overflow-scrolling: touch;'
-                        },
-                        {
-                            'selector': '.dash-table-container .dash-spreadsheet-container',
-                            'rule': 'min-width: 600px;'
-                        },
-                        {
-                            'selector': '.dash-spreadsheet-inner tr:hover td',
-                            'rule': 'background-color: #f8fafc !important;'
-                        },
-                        {
-                            'selector': '.dash-header',
-                            'rule': 'background-color: #f8fafc !important; text-transform: uppercase !important; font-size: 12px !important; letter-spacing: 0.5px !important; font-weight: 600 !important; color: #475569 !important; padding: 12px 16px !important; border-bottom: 2px solid #e2e8f0 !important;'
-                        },
-                        {
-                            'selector': 'td.dash-cell',
-                            'rule': 'border: none !important; border-bottom: 1px solid #f1f5f9 !important; padding: 12px 16px !important; color: #334155 !important; vertical-align: middle !important;'
-                        },
-                        {
-                            'selector': 'th.dash-header',
-                            'rule': 'border: none !important; border-bottom: 2px solid #e2e8f0 !important;'
-                        }
-                    ],
-                    tooltip_data=[
-                        {
-                            'organization': {'value': f"{r.get('name', '')} — {r.get('organization', '')}", 'type': 'text'},
-                            'name': {'value': f"{r.get('name', '')} — {r.get('organization', '')}", 'type': 'text'},
-                            'product': {'value': f"{r.get('name', '')} — {r.get('organization', '')}", 'type': 'text'}
-                        } for r in rows
-                    ],
-                    tooltip_duration=None
-
-                ))([
-                    {
-                        'ci': entry['ci'],
-                        'name': (
-                            load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('name')
-                            or entry.get('name', '')
-                        ),
-                        'organization': truncate_organization(
-                            (
-                                load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('organization')
-                                or entry.get('organization', '')
-                            )
-                        ),
-                        'product': (
-                            load_ci_metadata_map().get(str(entry.get('ci', '')), {}).get('product')
-                            or entry.get('product', '')
-                        ),
-                        'incidents': int(entry['incidents']),
-                        'downtime_minutes': round(float(entry.get('downtime_minutes', 0.0))),
-                        'availability_percentage': round(float(entry.get('availability_percentage', 0.0)), 2),
-                    }
-                    for entry in sorted(
-                        overall_stats.get('top_unstable_cis_by_incidents', []),
-                        key=lambda entry: (
-                            float(entry.get('availability_percentage', 0.0)),
-                            -int(entry['incidents'])
-                        )
-                    )
-                ])
-            ])
-        ])
     ])
 
     return layout
 
 layout = serve_layout
 
-# Add a clientside callback for navigation
-from dash import clientside_callback
+
+def _format_minutes_to_human(minutes: float) -> str:
+    try:
+        m = float(minutes or 0.0)
+        if m < 60:
+            return f"{m:.0f} Min"
+        h = m / 60.0
+        if h < 24:
+            return f"{h:.1f} Std"
+        d = h / 24.0
+        return f"{d:.1f} Tg"
+    except Exception:
+        return "0 Min"
 
 
-clientside_callback(
-    """
-    function(active_cell, table_data) {
-        if (active_cell && table_data) {
-            const rowIndex = active_cell.row;
-            if (rowIndex !== null && rowIndex < table_data.length) {
-                const ci = table_data[rowIndex].ci;
-                if (ci) {
-                    window.location.href = '/plot?ci=' + ci;
-                }
+@callback(
+    Output('unstable-cis-table-container', 'children'),
+    [Input('unstable-cis-filter', 'value'),
+     Input('unstable-cis-sort-state', 'data'),
+     Input('unstable-cis-data-store', 'data')],
+    prevent_initial_call=False
+)
+def render_unstable_cis_table(filter_text, sort_state, data):
+    try:
+        if not data:
+            return html.Div('Keine Daten verfügbar.')
+
+        df = pd.DataFrame(data)
+        if df.empty:
+            return html.Div('Keine CIs verfügbar.')
+
+        by = (sort_state or {}).get('by', 'incidents')
+        asc = bool((sort_state or {}).get('asc', False))
+
+        if by in df.columns:
+            df = df.sort_values([by, 'ci'], ascending=[asc, True])
+        else:
+            df = df.sort_values('incidents', ascending=False)
+
+        if filter_text:
+            f = str(filter_text).strip().lower()
+            def match_row(r):
+                try:
+                    return (
+                        f in str(r.get('ci', '')).lower()
+                        or f in str(r.get('organization', '')).lower()
+                        or f in str(r.get('product', '')).lower()
+                        or f in str(r.get('name', '')).lower()
+                    )
+                except Exception:
+                    return False
+            mask = df.apply(match_row, axis=1)
+            df = df[mask]
+
+        rows = []
+        for _, row in df.iterrows():
+            avail = float(row.get('availability_percentage', 0))
+            avail_class = 'available' if avail >= 99.5 else ('impaired' if avail >= 95 else 'unavailable')
+
+            rows.append(
+                html.Tr([
+                    html.Td([
+                        html.A(
+                            str(row.get('ci', '')),
+                            href=f"/plot?ci={str(row.get('ci', ''))}",
+                            className='ci-link'
+                        ),
+                        html.Br(),
+                        html.Span(str(row.get('name', '')), className='ci-name')
+                    ]),
+                    html.Td([
+                        html.Span(str(row.get('organization', '')), className='org-name'),
+                        html.Br(),
+                        html.Span(str(row.get('product', '')), className='product-name')
+                    ]),
+                    html.Td(str(int(row.get('incidents', 0))), className='duration', style={'textAlign': 'right'}),
+                    html.Td(_format_minutes_to_human(row.get('downtime_minutes')), className='duration'),
+                    html.Td(
+                        html.Span(f"{avail:.2f}%", className=f'status-badge {avail_class}')
+                    )
+                ])
+            )
+
+        def sort_header(label, col_key, current, min_width=None):
+            is_active = (current.get('by') == col_key)
+            asc_active = is_active and current.get('asc', False)
+            desc_active = is_active and not current.get('asc', False)
+            arrow_style_base = {
+                'border': 'none',
+                'background': 'transparent',
+                'cursor': 'pointer',
+                'padding': '0 4px',
+                'fontSize': '10px',
+                'lineHeight': '1'
             }
-        }
-        return window.dash_clientside.no_update;
-    }
-    """,
-    Output('stats-location', 'href'),
-    [Input('unstable-cis-table', 'active_cell')],
-    [State('unstable-cis-table', 'data')],
+            asc_style = {**arrow_style_base, 'color': '#0d9488' if asc_active else 'inherit'}
+            desc_style = {**arrow_style_base, 'color': '#0d9488' if desc_active else 'inherit'}
+            th_style = {
+                'whiteSpace': 'nowrap',
+                'verticalAlign': 'middle',
+                'paddingRight': '8px',
+                'paddingLeft': '8px',
+                'minWidth': min_width or 'auto'
+            }
+            return html.Th([
+                html.Span(label),
+                html.Span([
+                    html.Button(
+                        '▲',
+                        id={'type': 'unstable-sort', 'col': col_key, 'dir': 'asc'},
+                        n_clicks=0,
+                        style=asc_style,
+                        className='table-sort-btn'
+                    ),
+                    html.Button(
+                        '▼',
+                        id={'type': 'unstable-sort', 'col': col_key, 'dir': 'desc'},
+                        n_clicks=0,
+                        style=desc_style,
+                        className='table-sort-btn'
+                    )
+                ], style={'float': 'right', 'display': 'inline-flex', 'gap': '2px'})
+            ], style=th_style)
+
+        header = html.Thead([
+            html.Tr([
+                sort_header('CI', 'ci', sort_state or {}, min_width='140px'),
+                sort_header('Organisation · Produkt', 'organization', sort_state or {}, min_width='200px'),
+                sort_header('Incidents', 'incidents', sort_state or {}, min_width='100px'),
+                sort_header('Downtime', 'downtime_minutes', sort_state or {}, min_width='100px'),
+                sort_header('Verfügbarkeit', 'availability_percentage', sort_state or {}, min_width='120px')
+            ])
+        ])
+
+        table = html.Table([header, html.Tbody(rows)], className='incidents-table')
+        return table
+
+    except Exception as e:
+        return html.Div(f'Fehler beim Laden: {str(e)}', style={'color': 'red'})
+
+
+@callback(
+    Output('unstable-cis-sort-state', 'data'),
+    Input({'type': 'unstable-sort', 'col': ALL, 'dir': ALL}, 'n_clicks'),
+    State('unstable-cis-sort-state', 'data'),
     prevent_initial_call=True
 )
+def toggle_unstable_sort(_clicks, state):
+    ctx = dash.callback_context
+    state = state or {'by': 'incidents', 'asc': False}
+    if not ctx.triggered:
+        return state
+    trig = ctx.triggered[0]['prop_id'].split('.')[0]
+    try:
+        obj = json.loads(trig)
+        col = obj.get('col')
+        direction = obj.get('dir')
+    except Exception:
+        return state
+    if not col or direction not in ('asc', 'desc'):
+        return state
+    return {'by': col, 'asc': direction == 'asc'}
