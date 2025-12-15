@@ -879,7 +879,12 @@ a:any-link:hover {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--gray-200);
   padding: 20px;
+  text-align: left;
+}
+
+.stat-card h4 {
   text-align: center;
+  margin-bottom: 16px;
 }
 
 .stat-value {
@@ -894,6 +899,52 @@ a:any-link:hover {
   color: var(--gray-500);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Two-column responsive layout for stats overview */
+.stats-two-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.stats-two-columns .stat-card {
+  margin: 0;
+}
+
+.stat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-item strong {
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.stat-item span {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+/* Responsive: Single column on smaller screens */
+@media (max-width: 900px) {
+  .stats-two-columns {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ========================================

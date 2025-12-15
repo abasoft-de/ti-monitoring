@@ -285,8 +285,8 @@ def create_overall_statistics_display(stats):
     children = [
         html.H3('📊 Gesamtstatistik aller Configuration Items'),
 
-        # Main overview
-        html.Div(className='stats-overview', children=[
+        # Main overview - 2 column responsive grid
+        html.Div(className='stats-overview stats-two-columns', children=[
             html.Div(className='stat-card', children=[
                 html.H4('🎯 Übersicht'),
                 html.Div(className='stat-grid', children=[
