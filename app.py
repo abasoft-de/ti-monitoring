@@ -257,6 +257,13 @@ def serve_layout():
                         **{'data-tooltip': 'Start'}
                     ),
                     html.A(
+                        html.I(className='material-icons', children='dns'),
+                        href='/all-components',
+                        id='nav-components',
+                        className='sidebar-nav-item',
+                        **{'data-tooltip': 'Alle Komponenten'}
+                    ),
+                    html.A(
                         html.I(className='material-icons', children='analytics'),
                         href='/stats',
                         id='nav-stats',
@@ -1077,6 +1084,7 @@ def toggle_admin_menu_link(auth_data):
 # Callback to highlight active navigation item in sidebar
 @callback(
     [Output('nav-home', 'className'),
+     Output('nav-components', 'className'),
      Output('nav-stats', 'className'),
      Output('nav-notifications', 'className'),
      Output('nav-history', 'className')],
@@ -1089,15 +1097,17 @@ def update_nav_active(pathname):
     active_class = 'sidebar-nav-item active'
     
     if pathname == '/' or pathname == '' or pathname is None:
-        return active_class, base_class, base_class, base_class
+        return active_class, base_class, base_class, base_class, base_class
+    elif pathname == '/all-components':
+        return base_class, active_class, base_class, base_class, base_class
     elif pathname == '/stats':
-        return base_class, active_class, base_class, base_class
+        return base_class, base_class, active_class, base_class, base_class
     elif pathname == '/notifications':
-        return base_class, base_class, active_class, base_class
+        return base_class, base_class, base_class, active_class, base_class
     elif pathname == '/incident-history':
-        return base_class, base_class, base_class, active_class
+        return base_class, base_class, base_class, base_class, active_class
     else:
-        return base_class, base_class, base_class, base_class
+        return base_class, base_class, base_class, base_class, base_class
 
 # Pages are automatically registered via dash.register_page in their respective files
 
