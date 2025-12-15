@@ -8,7 +8,7 @@ TI-Monitoring is a German Telematikinfrastruktur (TI) monitoring application tha
 - `mylibrary.py` - Core library with database operations and utility functions
 - `cron.py` - Background job for fetching data from gematik API
 - `config.yaml` - Application configuration
-- `pages/` - Dash multi-page app pages (home, stats, notifications, admin)
+- `pages/` - Dash multi-page app pages (home, stats, notifications, incident_history, admin)
 - `assets/` - Static assets (CSS, JS, images)
 
 ## Tech Stack
@@ -40,7 +40,7 @@ Required environment variables (set via Replit Secrets):
 ## Database
 The application uses PostgreSQL for storing:
 - `measurements` - Time-series availability data
-- `ci_metadata` - Configuration item metadata
+- `ci_metadata` - Configuration item metadata (includes `enabled` column for filtering)
 - `users` - User accounts for OTP authentication
 - `otp_codes` - One-time password codes
 - `notification_profiles` - User notification settings
@@ -51,6 +51,8 @@ The application uses PostgreSQL for storing:
 - Multi-user notification system with OTP authentication
 - Support for 90+ notification channels via Apprise
 - Admin dashboard for user management
+- CI enabled/disabled filtering (hide CIs from display via `ci_metadata.enabled`)
+- Incident history page showing incidents from last N hours (configurable via `stats_delta_hours`)
 
 ## UI Design
 The app features a modern medical dashboard design with:
