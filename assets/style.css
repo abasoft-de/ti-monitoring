@@ -1,12 +1,14 @@
-/* Modern CSS with CSS Variables and Glassmorphism */
+/* Modern Medical Dashboard Design - Teal/Cyan Theme */
 :root {
-  /* Color Palette */
-  --primary-color: #2563eb;
-  --primary-dark: #1e40af;
-  --primary-light: #3b82f6;
-  --secondary-color: #10b981;
+  /* Primary Teal/Cyan Color Palette from Screenshot */
+  --primary-color: #0d9488;
+  --primary-dark: #0f766e;
+  --primary-light: #14b8a6;
+  --primary-lightest: #ccfbf1;
+  --secondary-color: #06b6d4;
   --accent-color: #f59e0b;
   --danger-color: #ef4444;
+  --success-color: #10b981;
   
   /* Neutral Colors */
   --white: #ffffff;
@@ -21,6 +23,12 @@
   --gray-800: #1e293b;
   --gray-900: #0f172a;
   
+  /* Sidebar */
+  --sidebar-width: 64px;
+  --sidebar-bg: #1e293b;
+  --sidebar-hover: #334155;
+  --sidebar-active: var(--primary-color);
+  
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -28,15 +36,14 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   
   /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   
   /* Transitions */
   --transition-fast: 0.15s ease-in-out;
   --transition-normal: 0.3s ease-in-out;
-  --transition-slow: 0.5s ease-in-out;
   
   /* Spacing */
   --spacing-xs: 0.5rem;
@@ -46,11 +53,11 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
   
-  /* Light theme table colors for Dash DataTable */
+  /* Table colors */
   --bg-color: #ffffff;
   --text-color: #1e293b;
   --border-color: #e2e8f0;
-  --card-bg-color: #f8fafc;
+  --card-bg-color: #ffffff;
 }
 
 /* Modern Typography */
@@ -58,3105 +65,911 @@
 
 html {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--gray-800);
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  background: var(--gray-100);
   min-height: 100vh;
 }
 
 body {
-  display: flex;
-  justify-content: center;
   margin: 0;
-  padding-top: 80px;
+  padding: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  background: var(--gray-100);
+  display: flex;
 }
 
+/* Main App Container with Sidebar */
 #react-entry-point {
-  box-shadow: var(--shadow-xl);
-  border-radius: var(--radius-xl);
-  background: var(--white);
-  overflow: hidden;
+  display: flex;
   width: 100%;
+  min-height: 100vh;
+}
+
+/* Hide the old header - we use sidebar now */
+header {
+  display: none !important;
+}
+
+/* ========================================
+   LEFT SIDEBAR NAVIGATION
+   ======================================== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.sidebar-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.sidebar-nav-item {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--gray-400);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--sidebar-hover);
+  color: var(--white);
+}
+
+.sidebar-nav-item.active {
+  background: var(--sidebar-active);
+  color: var(--white);
+}
+
+.sidebar-nav-item .material-icons {
+  font-size: 22px;
+}
+
+.sidebar-nav-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 60px;
+  background: var(--gray-800);
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition-fast);
+  z-index: 1001;
+}
+
+.sidebar-nav-item:hover::after {
+  opacity: 1;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 24px;
+  max-width: calc(100vw - var(--sidebar-width));
+  box-sizing: border-box;
+}
+
+#page-container {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-main, #footer {
-  max-width: 1400px;
-  width: 100%;
-  padding: var(--spacing-lg) var(--spacing-xl);
-  box-sizing: border-box;
-}
-
-/* Modern Header with Glassmorphism */
-header {
-  display: flex;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  z-index: 1000;
-  align-items: center;
-  box-shadow: var(--shadow-lg);
-  height: 80px;
-  width: 100%;
-  padding: 0 var(--spacing-xl);
-  box-sizing: border-box;
-  transition: var(--transition-normal);
-}
-
-header:hover {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--shadow-xl);
-}
-
-#logo-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: var(--spacing-xl);
+/* ========================================
+   CARDS - Modern Card Design
+   ======================================== */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  padding: 20px;
+  margin-bottom: 16px;
   transition: var(--transition-fast);
 }
 
-#logo-wrapper:hover {
-  transform: scale(1.05);
-}
-
-.navigation {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-}
-
-.navigation a {
-  text-decoration: none;
-  color: var(--gray-700);
-  font-weight: 500;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-  position: relative;
-  overflow: hidden;
-}
-
-.navigation a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
-  transition: var(--transition-normal);
-}
-
-.navigation a:hover::before {
-  left: 100%;
-}
-
-.navigation a:hover {
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--primary-color);
-  transform: translateY(-2px);
-}
-
-/* Modern Material Icons */
-.nav-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  padding: 0;
-  margin-left: var(--spacing-sm);
-  transition: var(--transition-fast);
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--primary-color);
-}
-
-.nav-icon:hover {
-  background: var(--primary-color);
-  color: var(--white);
-  transform: scale(1.1);
+.card:hover {
   box-shadow: var(--shadow-md);
 }
 
-.nav-icon .material-icons {
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title .material-icons {
+  color: var(--primary-color);
   font-size: 20px;
 }
 
-#logo {
-  cursor: pointer;
-  height: 50px;
-  width: 50px;
-  border-radius: var(--radius-lg);
-  transition: var(--transition-fast);
-  filter: drop-shadow(var(--shadow-sm));
-}
-
-#logo:hover {
-  filter: drop-shadow(var(--shadow-md));
-  transform: scale(1.05);
-}
-
-/* Modern Content Area */
-#_pages_content {
-  min-height: 100px;
-  padding: var(--spacing-lg) 0;
-}
-
-/* Plot: spacing inside comprehensive statistics container */
-.comprehensive-stats {
-  padding: var(--spacing-lg);
-}
-
-/* Add inner padding on wrapper to separate its border from inner boxes */
-.comprehensive-stats > div {
-  padding: var(--spacing-lg);
-}
-
-/* Modern Footer */
-#footer {
+.card-actions {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
-  border-top: 1px solid var(--gray-200);
-  padding: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
+  gap: 8px;
 }
 
-#footer div {
-  flex-grow: 1;
-  text-align: center;
-  margin: var(--spacing-sm);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
+.card-action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+  color: var(--gray-500);
+  cursor: pointer;
   transition: var(--transition-fast);
 }
 
-#footer div:hover {
-  background: rgba(37, 99, 235, 0.05);
-  transform: translateY(-2px);
+.card-action-btn:hover {
+  background: var(--primary-lightest);
+  color: var(--primary-color);
 }
 
-/* Modern Box Components */
+/* Legacy .box styling mapped to new card design */
 .box {
-  margin: var(--spacing-md) 0;
-  padding: var(--spacing-lg);
   background: var(--white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--gray-200);
-  transition: var(--transition-normal);
+  padding: 20px;
+  margin: 16px 0;
+  transition: var(--transition-fast);
 }
 
 .box:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-
-.box h3 {
-  margin: 0 0 var(--spacing-md) 0;
-  color: var(--gray-800);
-  font-weight: 600;
-  font-size: 1.25rem;
-}
-
-/* Modern Statistics */
-#statistics ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* Modern Buttons */
-.button {
-  font-size: 1.5em;
-  cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  transition: var(--transition-fast);
-  background: var(--primary-color);
-  color: var(--white);
-  border: none;
-  font-weight: 500;
-}
-
-.button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Modern Accordion */
-.accordion-element ul {
-  margin: 0;
-  padding: 0;
-}
-
-.accordion li {
+.box h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0 0 16px 0;
   display: flex;
   align-items: center;
-  flex-grow: 0;
-  flex-shrink: 0;
-  padding: var(--spacing-sm) 0;
+  gap: 8px;
 }
 
-.accordion-element-title .availability-icon, 
-.accordion-element-content ul li span {
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  border-radius: 50%;
-  flex-grow: 0;
-  flex-shrink: 0;
-  margin-right: var(--spacing-sm);
+/* ========================================
+   PAGE HEADER / TITLE AREA
+   ======================================== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
 }
 
-.accordion-element-content ul li span {
-  width: 0.5em;
-  height: 0.5em;
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0;
 }
 
-/* Modern Availability Icons */
+.page-subtitle {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+/* ========================================
+   GRID LAYOUTS
+   ======================================== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* Main content grid - like screenshot */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ========================================
+   STATUS BADGES
+   ======================================== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.available,
+.status-badge.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.unavailable,
+.status-badge.error,
+.status-badge.incident-ongoing {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.incident-resolved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.warning,
+.status-badge.impaired {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ========================================
+   AVAILABILITY ICONS
+   ======================================== */
+.availability-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
 .availability-icon.available {
-  background: linear-gradient(135deg, var(--secondary-color), #059669);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  background: var(--success-color);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
 }
 
 .availability-icon.impaired {
-  background: linear-gradient(135deg, var(--accent-color), #d97706);
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
-  border-radius: var(--radius-sm);
+  background: var(--accent-color);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  border-radius: 2px;
 }
 
 .availability-icon.unavailable {
-  background: linear-gradient(135deg, var(--danger-color), #dc2626);
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  border-radius: var(--radius-sm);
+  background: var(--danger-color);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  border-radius: 2px;
 }
 
-/* Modern Accordion Elements */
+/* ========================================
+   TABLES - Modern Table Design
+   ======================================== */
+.incidents-table,
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.incidents-table thead th,
+table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--gray-50);
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.incidents-table tbody tr,
+table tbody tr {
+  border-bottom: 1px solid var(--gray-100);
+  transition: var(--transition-fast);
+}
+
+.incidents-table tbody tr:hover,
+table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+.incidents-table tbody td,
+table tbody td {
+  padding: 12px 16px;
+  color: var(--gray-700);
+  vertical-align: middle;
+}
+
+.incidents-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+}
+
+.ci-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.ci-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.ci-name {
+  color: var(--gray-500);
+  font-size: 12px;
+}
+
+.org-name {
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.product-name {
+  color: var(--gray-500);
+  font-size: 12px;
+}
+
+.timestamp {
+  color: var(--gray-600);
+  font-size: 12px;
+}
+
+.duration {
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+/* Table sort buttons */
+.table-sort-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 10px;
+  color: var(--gray-400);
+  transition: var(--transition-fast);
+}
+
+.table-sort-btn:hover {
+  color: var(--primary-color);
+}
+
+/* ========================================
+   ACCORDION - Collapsible Sections
+   ======================================== */
+.accordion-element {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  overflow: hidden;
+  background: var(--white);
+}
+
 .accordion-element-title {
-  border-top: 1px solid var(--gray-200);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 14px 16px;
   display: flex;
   align-items: center;
+  cursor: pointer;
   background: var(--white);
   transition: var(--transition-fast);
-  cursor: pointer;
-  border-radius: var(--radius-md);
-  margin: var(--spacing-xs) 0;
+  border: none;
+  border-top: none;
+}
+
+.accordion-element-title:hover {
+  background: var(--gray-50);
 }
 
 .accordion-element-title * {
   pointer-events: none;
 }
 
-.accordion-element-title:hover {
-  background: var(--gray-50);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-sm);
-}
-
 .group-name {
-  flex-grow: 1;
+  flex: 1;
   font-weight: 500;
   color: var(--gray-800);
+  font-size: 14px;
 }
 
-.accordion-element:last-of-type {
-  border-bottom: 1px solid var(--gray-200);
+.expand-collapse-icon {
+  color: var(--gray-400);
+  font-size: 18px;
+  font-weight: 300;
 }
 
 .accordion-element-content {
-  transition: var(--transition-normal);
-  overflow: hidden;
   height: 0;
+  overflow: hidden;
   background: var(--gray-50);
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  transition: var(--transition-normal);
 }
 
 .accordion-element-content ul {
-  padding: var(--spacing-lg);
+  padding: 16px;
   margin: 0;
+  list-style: none;
 }
 
 .accordion-element-content ul li {
-  padding: var(--spacing-sm) 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--gray-200);
-  transition: var(--transition-fast);
-}
-
-.accordion-element-content ul li:hover {
-  background: rgba(37, 99, 235, 0.05);
-  padding-left: var(--spacing-md);
-  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
 }
 
 .accordion-element-content ul li:last-child {
   border-bottom: none;
 }
 
-/* Modern Links */
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition-fast);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-200);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: var(--primary-lightest);
+}
+
+/* Legacy button class */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: var(--primary-color);
+  color: var(--white);
+  transition: var(--transition-fast);
+}
+
+.button:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+}
+
+/* ========================================
+   INCIDENTS SECTION
+   ======================================== */
+.incidents-section {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.incidents-title,
+.ci-all-title,
+.stats-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.incidents-container {
+  overflow: hidden;
+}
+
+/* Filter input styling */
+.incidents-filter-input {
+  background: var(--white) !important;
+  border: 1px solid var(--gray-300) !important;
+  color: var(--gray-800) !important;
+}
+
+/* ========================================
+   SOCIAL LINKS
+   ======================================== */
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.social-links a:hover {
+  color: var(--primary-color);
+}
+
+.social-links img {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========================================
+   WARNING / INFO MESSAGES
+   ======================================== */
+.warning-message {
+  background: var(--primary-lightest);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  color: var(--primary-dark);
+}
+
+.info-message {
+  background: #e0f2fe;
+  border: 1px solid #7dd3fc;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  color: #0369a1;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+#footer {
+  margin-left: var(--sidebar-width);
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  padding: 20px 24px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+#footer div {
+  text-align: center;
+}
+
+#footer a {
+  color: var(--gray-600);
+  text-decoration: none;
+  font-size: 13px;
+  transition: var(--transition-fast);
+}
+
+#footer a:hover {
+  color: var(--primary-color);
+}
+
+/* ========================================
+   LINKS
+   ======================================== */
 a:any-link {
   color: var(--primary-color);
   text-decoration: none;
   transition: var(--transition-fast);
-  border-bottom: 1px solid transparent;
 }
 
 a:any-link:hover {
   color: var(--primary-dark);
-  border-bottom-color: var(--primary-color);
 }
 
-/* Time Selector Styles */
+/* ========================================
+   DROPDOWN STYLING
+   ======================================== */
 .time-selector {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 16px;
   flex-wrap: wrap;
-  margin: var(--spacing-md) 0;
+  margin: 16px 0;
 }
 
 .time-selector label {
   font-weight: 500;
   color: var(--gray-700);
-  margin: 0;
+  font-size: 14px;
 }
 
 .time-selector .dash-dropdown {
   min-width: 200px;
-  position: relative;
-  z-index: 1000;
 }
 
-/* Ensure dropdown options appear above plotly graphs */
-.dash-dropdown .Select-menu-outer {
-  z-index: 1001 !important;
-  position: absolute !important;
+.dash-dropdown .Select-control {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
 }
 
-.dash-dropdown .Select-menu {
-  z-index: 1001 !important;
-  position: relative !important;
+.dash-dropdown .Select-control:hover {
+  border-color: var(--primary-color);
 }
 
-/* Force dropdown container above plotly */
-.time-selector {
-  position: relative;
-  z-index: 1000;
+/* ========================================
+   PLOTLY GRAPH ADJUSTMENTS
+   ======================================== */
+.js-plotly-plot {
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
-/* Specific fix for plotly graph container */
 #plot-container {
   position: relative;
   z-index: 1;
 }
 
-/* Ensure dropdown is above everything */
-.Select-control {
-  z-index: 1002 !important;
-  position: relative !important;
+/* ========================================
+   STATS PAGE STYLES
+   ======================================== */
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  padding: 20px;
+  text-align: center;
 }
 
-.time-selector .button {
-  background: var(--primary-color);
-  color: var(--white);
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-weight: 500;
-  transition: var(--transition-fast);
-}
-
-.time-selector .button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Hamburger Menu Styles */
-
-details summary {
-  list-style: none !important;
-  cursor: pointer !important;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 2px solid #2563eb;
-  background: #f0f8ff;
-  transition: var(--transition-fast);
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  font-size: 18px;
-  font-weight: bold;
-  color: #2563eb;
-}
-
-details summary:hover {
-  background: #e0f2fe;
-  border-color: #1976d2;
-  transform: scale(1.05);
-}
-
-details summary::-webkit-details-marker {
-  display: none;
-}
-
-details summary::marker {
-  display: none;
-}
-
-details[open] summary {
-  background: #f0f8ff;
-  border-color: var(--primary-color);
-}
-
-#hamburger-menu-content {
-  position: absolute;
-  right: 0;
-  margin-top: 8px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  min-width: 220px;
-  display: grid;
-  row-gap: 4px;
-  z-index: 1001;
-}
-
-#hamburger-menu-content a {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  text-decoration: none;
-  color: #2c3e50;
-  border-radius: 6px;
-  transition: var(--transition-fast);
-}
-
-#hamburger-menu-content a:hover {
-  background: #f8f9fa;
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
   color: var(--primary-color);
+  margin-bottom: 4px;
 }
 
-/* Hamburger Menu - Always visible on all platforms */
-details {
-  display: block !important;
-  position: relative;
-  visibility: visible !important;
-  opacity: 1 !important;
+.stat-label {
+  font-size: 13px;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Mobile: Adjust hamburger menu styling */
-@media (max-width: 768px) {
-  details summary {
-    padding: 8px 10px;
-    font-size: 18px;
-  }
-  
-  #hamburger-menu-content {
-    right: -10px;
-    min-width: 200px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  }
-  
-  #hamburger-menu-content a {
-    padding: 12px 16px;
-    font-size: 16px;
-  }
+/* ========================================
+   NOTIFICATION SETTINGS STYLES
+   ======================================== */
+.notification-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  padding: 24px;
+  margin-bottom: 16px;
 }
 
-@media (max-width: 480px) {
-  details summary {
-    padding: 6px 8px;
-    font-size: 16px;
-  }
-  
-  #hamburger-menu-content {
-    right: -15px;
-    min-width: 180px;
-  }
-  
-  #hamburger-menu-content a {
-    padding: 10px 14px;
-    font-size: 15px;
-  }
+/* ========================================
+   COMPREHENSIVE STATS CONTAINER
+   ======================================== */
+.comprehensive-stats {
+  padding: 20px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  header {
-    padding: 0 var(--spacing-md);
-    height: 70px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  
-  body {
-    padding-top: 70px;
-  }
-  
-  main, #footer {
-    padding: var(--spacing-md);
-  }
-  
-  .navigation {
-    gap: var(--spacing-xs);
-    flex-shrink: 0;
-    min-width: max-content;
-  }
-  
-  .nav-icon {
-    width: 36px;
-    height: 36px;
-    margin-left: var(--spacing-xs);
-    flex-shrink: 0;
-  }
-  
-  .nav-icon .material-icons {
-    font-size: 18px;
-  }
-  
-  #logo {
-    height: 40px;
-    width: 40px;
-    flex-shrink: 0;
-  }
-  
-  #logo-wrapper {
-    margin-right: var(--spacing-md);
-    flex-shrink: 0;
-  }
-  
-  header h1 {
-    font-size: 1.2rem;
-    flex-shrink: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .box {
-    padding: var(--spacing-md);
-  }
-  
-  .accordion-element-title {
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-  
-  .accordion-element-content ul {
-    padding: var(--spacing-md);
-  }
-  
-  .time-selector {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-  
-  .time-selector .dash-dropdown {
-    min-width: 100%;
-  }
+.comprehensive-stats > div {
+  padding: 16px;
 }
 
-@media (max-width: 480px) {
-  header {
-    padding: 0 var(--spacing-sm);
-    height: 60px;
-  }
-  
-  body {
-    padding-top: 60px;
-  }
-  
-  main, #footer {
-    padding: var(--spacing-sm);
-  }
-  
-  .navigation {
-    gap: 2px;
-  }
-  
-  .nav-icon {
-    width: 32px;
-    height: 32px;
-    margin-left: 2px;
-  }
-  
-  .nav-icon .material-icons {
-    font-size: 16px;
-  }
-  
-  #logo {
-    height: 35px;
-    width: 35px;
-  }
-  
-  #logo-wrapper {
-    margin-right: var(--spacing-sm);
-  }
-  
-  header h1 {
-    font-size: 1rem;
-  }
-  
-  .accordion-element-title {
-    padding: var(--spacing-sm);
-  }
-  
-  .accordion-element-content ul {
-    padding: var(--spacing-sm);
-  }
-  
-  .time-selector {
-    gap: var(--spacing-xs);
-  }
-  
-  .time-selector .button {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 0.9rem;
-  }
-  
-  /* Remove card borders on mobile for stats page */
-  .stat-card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  .stat-card h4 {
-    margin-bottom: var(--spacing-sm) !important;
-  }
+/* ========================================
+   HAMBURGER MENU - HIDDEN (replaced by sidebar)
+   ======================================== */
+details,
+#hamburger-menu-content {
+  display: none !important;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark theme color palette */
-    --white: #1e293b;
-    --gray-50: #334155;
-    --gray-100: #475569;
-    --gray-200: #64748b;
-    --gray-300: #94a3b8;
-    --gray-400: #cbd5e1;
-    --gray-500: #e2e8f0;
-    --gray-600: #f1f5f9;
-    --gray-700: #f8fafc;
-    --gray-800: #ffffff;
-    --gray-900: #ffffff;
-    
-  /* Dark theme specific colors */
-  --primary-color: #60a5fa;
-  --primary-dark: #3b82f6;
-  --primary-light: #93c5fd;
-  --secondary-color: #34d399;
-  --accent-color: #fbbf24;
-  --danger-color: #f87171;
-  
-  /* Dark theme table colors for Dash DataTable */
-  --bg-color: #1e293b;
-  --text-color: #f1f5f9;
-  --border-color: #475569;
-  --card-bg-color: #334155;
+/* ========================================
+   SPINNER / LOADING
+   ======================================== */
+.dash-spinner {
+  border-color: var(--primary-color) !important;
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+  .sidebar {
+    display: none;
   }
   
-  html {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: var(--gray-800);
+  main {
+    margin-left: 0;
+    max-width: 100%;
   }
   
-  body {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: var(--gray-800);
-  }
-  
-  header {
-    background: rgba(15, 23, 42, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--gray-800);
-  }
-  
-  header:hover {
-    background: rgba(15, 23, 42, 0.95);
-  }
-  
-  /* Dark theme for navigation */
-  .navigation a {
-    color: var(--gray-600);
-  }
-  
-  .navigation a:hover {
-    color: var(--primary-color);
-    background: rgba(96, 165, 250, 0.1);
-  }
-  
-  .nav-icon {
-    background: rgba(96, 165, 250, 0.15);
-    color: var(--primary-color);
-  }
-  
-  .nav-icon:hover {
-    background: var(--primary-color);
-    color: var(--white);
-  }
-  
-  /* Dark theme for boxes and cards */
-  .box {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    color: var(--gray-800);
-  }
-  
-  .box h3 {
-    color: var(--gray-800);
-  }
-  
-  /* Dark theme for accordion */
-  .accordion-element-title {
-    background: var(--white);
-    border-top: 1px solid var(--gray-200);
-    color: var(--gray-800);
-  }
-  
-  .accordion-element-title:hover {
-    background: var(--gray-50);
-  }
-  
-  .accordion-element-content {
-    background: var(--gray-50);
-  }
-  
-  .accordion-element-content ul li {
-    border-bottom: 1px solid var(--gray-200);
-    color: var(--gray-700);
-  }
-  
-  .accordion-element-content ul li:hover {
-    background: rgba(96, 165, 250, 0.05);
-  }
-  
-  /* Dark theme for forms */
-  .form-control {
-    background: var(--white);
-    border: 2px solid var(--gray-200);
-    color: var(--gray-800);
-  }
-  
-  .form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-  }
-  
-  .form-label {
-    color: var(--gray-700);
-  }
-  
-  /* Dark theme for Dash Input components */
-  input[type="text"], input[type="email"], input[type="password"] {
-    background-color: var(--white) !important;
-    color: var(--gray-800) !important;
-    border: 2px solid var(--gray-200) !important;
-  }
-  
-  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  input[type="text"]::placeholder, input[type="email"]::placeholder, input[type="password"]::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Dark theme for Dash Textarea components */
-  textarea {
-    background-color: var(--white) !important;
-    color: var(--gray-800) !important;
-    border: 2px solid var(--gray-200) !important;
-  }
-  
-  textarea:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  textarea::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Dark theme for Dash RadioItems */
-  .dash-radio-items {
-    color: var(--gray-800) !important;
-  }
-  
-  .dash-radio-items .dash-radio-item {
-    color: var(--gray-800) !important;
-  }
-  
-  .dash-radio-items .dash-radio-item input[type="radio"] {
-    accent-color: var(--primary-color) !important;
-  }
-  
-  /* Dark theme for Dash Checklist */
-  .dash-checklist {
-    color: var(--gray-800) !important;
-  }
-  
-  .dash-checklist .dash-checklist-item {
-    color: var(--gray-800) !important;
-  }
-  
-  .dash-checklist .dash-checklist-item input[type="checkbox"] {
-    accent-color: var(--primary-color) !important;
-  }
-  
-  /* Dark theme for labels */
-  label {
-    color: var(--gray-800) !important;
-  }
-  
-  /* Dark theme for paragraphs and text */
-  p {
-    color: var(--gray-800) !important;
-  }
-  
-  /* Dark theme for spans */
-  span {
-    color: var(--gray-800) !important;
-  }
-  
-  /* Dark theme for strong/bold text */
-  strong {
-    color: var(--gray-800) !important;
-  }
-  
-  /* Dark theme for buttons */
-  .button {
-    background: var(--primary-color);
-    color: var(--white);
-  }
-  
-  .button:hover {
-    background: var(--primary-dark);
-  }
-  
-  /* Dark theme for links */
-  a:any-link {
-    color: var(--primary-color);
-  }
-  
-  a:any-link:hover {
-    color: var(--primary-dark);
-    border-bottom-color: var(--primary-color);
-  }
-  
-  /* Dark theme for footer */
   #footer {
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
-    border-top: 1px solid var(--gray-200);
-    color: var(--gray-700);
+    margin-left: 0;
   }
-  
-  #footer div:hover {
-    background: rgba(96, 165, 250, 0.05);
-  }
-  
-  /* Dark theme for statistics */
-  .stat-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-  }
-  
-  .stat-item {
-    color: var(--gray-700);
-  }
-  
-  .stat-item strong {
-    color: var(--gray-800);
-  }
-  
-  /* Dark theme for tables */
-  .downtime-table {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-  }
-  
-  .downtime-table th {
-    background-color: var(--danger-color);
-    color: var(--white);
-  }
-  
-  .downtime-table td {
-    border-bottom: 1px solid var(--gray-200);
-    color: var(--gray-700);
-  }
-  
-  .downtime-table tr:nth-child(even) {
-    background-color: var(--gray-50);
-  }
-  
-  .downtime-table tr:hover {
-    background-color: rgba(96, 165, 250, 0.05);
-  }
-  
-  .downtime-table td:first-child {
-    color: var(--gray-800);
-  }
-  
-  .downtime-table td:nth-child(2) {
-    color: var(--gray-600);
-  }
-  
-  .downtime-table td:nth-child(3) {
-    color: var(--danger-color);
-  }
-  
-  /* Dark theme for Dash DataTable (stats page) - All screen sizes */
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner table {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border-color: #475569 !important;
-    font-weight: bold !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border-color: #475569 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  /* Additional specific selectors for better coverage */
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner .dash-header {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner .dash-cell {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border-color: #475569 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner .dash-cell.dash-cell--selected {
-    background-color: rgba(96, 165, 250, 0.2) !important;
-  }
-  
-  /* Override any conflicting styles from custom.css */
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th,
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border-color: #475569 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
-    background-color: #334155 !important;
-  }
-  
-  /* Ensure table container itself has proper background */
-  .dash-table-container {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .dash-table-container .dash-spreadsheet-container {
-    background-color: #1e293b !important;
-  }
-  
-  /* Dark theme for notification settings page */
-  /* Container backgrounds */
-  .notification-settings-container {
-    background-color: var(--white) !important;
-    border: 1px solid var(--gray-200) !important;
-  }
-  
-  /* User info section */
-  .user-info-section {
-    background-color: var(--gray-50) !important;
-    border: 1px solid var(--gray-200) !important;
-    color: var(--gray-800) !important;
-  }
-  
-  /* Specific styling for user-info div */
-  #user-info {
-    background-color: #334155 !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #user-info * {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-info span {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-info button {
-    color: white !important;
-  }
-  
-  /* Specific styling for profile-name-input */
-  #profile-name-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #profile-name-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #profile-name-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Comprehensive fix for ALL input fields in notifications page */
-  /* Target all input types specifically */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="url"],
-  input[type="tel"],
-  input[type="number"] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  input[type="text"]:focus,
-  input[type="email"]:focus,
-  input[type="password"]:focus,
-  input[type="search"]:focus,
-  input[type="url"]:focus,
-  input[type="tel"]:focus,
-  input[type="number"]:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  input[type="text"]::placeholder,
-  input[type="email"]::placeholder,
-  input[type="password"]::placeholder,
-  input[type="search"]::placeholder,
-  input[type="url"]::placeholder,
-  input[type="tel"]::placeholder,
-  input[type="number"]::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Target all textarea elements */
-  textarea {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  textarea:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  textarea::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Specific fixes for notification settings page inputs */
-  #ci-filter-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #ci-filter-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #ci-filter-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  #apprise-urls-textarea {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #apprise-urls-textarea:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #apprise-urls-textarea::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Apprise URL input - same styling as textarea */
-  #apprise-url-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #apprise-url-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #apprise-url-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  #test-apprise-url {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #test-apprise-url:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #test-apprise-url::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* OTP and email inputs */
-  #email-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #email-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #email-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  #otp-code-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  #otp-code-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  #otp-code-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Ultra-specific selectors to override inline styles */
-  /* These have higher specificity than inline styles */
-  input[type="text"][style*="padding"],
-  input[type="email"][style*="padding"],
-  input[type="password"][style*="padding"],
-  input[type="search"][style*="padding"],
-  input[type="url"][style*="padding"],
-  input[type="tel"][style*="padding"],
-  input[type="number"][style*="padding"] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  textarea[style*="padding"] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  /* Even more specific - target by ID with inline styles */
-  #profile-name-input[style],
-  #ci-filter-input[style],
-  #apprise-urls-textarea[style],
-  #apprise-url-input[style],
-  #test-apprise-url[style],
-  #email-input[style],
-  #otp-code-input[style] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  /* Force text color for all input elements */
-  input, textarea {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Override any potential color inheritance */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
-  input[type="url"],
-  input[type="tel"],
-  input[type="number"],
-  textarea {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Nuclear option - force text color on ALL elements that could be inputs */
-  *[id*="input"] {
-    color: #f1f5f9 !important;
-  }
-  
-  *[id*="textarea"] {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Force text color on any element with input-like styling */
-  *[style*="padding"][style*="borderRadius"] {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Target Dash components specifically */
-  .dash-input input,
-  .dash-textarea textarea {
-    color: #f1f5f9 !important;
-    background-color: #1e293b !important;
-  }
-  
-  /* Force override for any remaining cases */
-  input:not([type="button"]):not([type="submit"]):not([type="reset"]),
-  textarea {
-    color: #f1f5f9 !important;
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  /* Profile form container */
-  .profile-form-container {
-    background-color: var(--white) !important;
-    border: 1px solid var(--gray-200) !important;
-  }
-  
-  /* CI checkboxes container */
-  .ci-checkboxes-container {
-    background-color: var(--gray-50) !important;
-    border: 1px solid var(--gray-200) !important;
-  }
-  
-  /* Individual CI checkbox items */
-  .ci-checkbox-item {
-    background-color: var(--white) !important;
-    border: 1px solid var(--gray-200) !important;
-    color: var(--gray-800) !important;
-  }
-  
-  /* CI filter info text */
-  .ci-filter-info {
-    color: var(--gray-600) !important;
-  }
-  
-  /* CI load status */
-  .ci-load-status {
-    color: var(--danger-color) !important;
-  }
-  
-  /* Specific fixes for notification settings page elements */
-  /* Make CI checkbox text visible */
-  .ci-checkbox-item label {
-    color: #1e293b !important;
-  }
-  
-  .ci-checkbox-item label strong {
-    color: #1e293b !important;
-  }
-  
-  .ci-checkbox-item label span {
-    color: #475569 !important;
-  }
-  
-  /* Make filter info text visible */
-  .ci-filter-info {
-    color: #475569 !important;
-  }
-  
-  /* Make all text in white containers dark */
-  .profile-form-container p,
-  .profile-form-container span,
-  .profile-form-container div {
-    color: #1e293b !important;
-  }
-  
-  /* Make radio button labels visible */
-  .dash-radio-items label {
-    color: #1e293b !important;
-  }
-  
-  /* Make form labels visible */
-  .profile-form-container label {
-    color: #1e293b !important;
-  }
-  
-  /* Specific Dash component overrides for notification settings */
-  /* Override Dash Input component styles */
-  .dash-input input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  .dash-input input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Specific override for apprise URL input */
-  .dash-input input#apprise-url-input {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  .dash-input input#apprise-url-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  .dash-input input#apprise-url-input::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Override Dash Textarea component styles */
-  .dash-textarea textarea {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  .dash-textarea textarea::placeholder {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  
-  /* Override Dash RadioItems component styles */
-  .dash-radio-items {
-    color: #1e293b !important;
-  }
-  
-  .dash-radio-items .dash-radio-item {
-    color: #1e293b !important;
-  }
-  
-  .dash-radio-items .dash-radio-item label {
-    color: #1e293b !important;
-  }
-  
-  /* Override Dash Checklist component styles */
-  .dash-checklist {
-    color: #1e293b !important;
-  }
-  
-  .dash-checklist .dash-checklist-item {
-    color: #1e293b !important;
-  }
-  
-  .dash-checklist .dash-checklist-item label {
-    color: #1e293b !important;
-  }
-  
-  /* Very specific selectors for notification settings page */
-  /* Target the exact structure from notification_settings.py */
-  
-  /* RadioItems labels - these are empty in the code, so we need to target the container */
-  .dash-radio-items .dash-radio-item {
-    color: #1e293b !important;
-  }
-  
-  /* Make sure radio button text is visible */
-  .dash-radio-items .dash-radio-item span {
-    color: #1e293b !important;
-  }
-  
-  /* CI checkbox container styling */
-  #ci-checkboxes-container {
-    background-color: #f8f9fa !important;
-  }
-  
-  #ci-checkboxes-container div {
-    background-color: white !important;
-    border: 1px solid #e9ecef !important;
-  }
-  
-  /* CI checkbox labels - these are html.Label elements */
-  #ci-checkboxes-container label {
-    color: #1e293b !important;
-  }
-  
-  #ci-checkboxes-container label strong {
-    color: #1e293b !important;
-  }
-  
-  #ci-checkboxes-container label span {
-    color: #475569 !important;
-  }
-  
-  /* Filter info text */
-  #ci-filter-info {
-    color: #475569 !important;
-  }
-  
-  /* Form labels */
-  #profile-form-container label,
-  #profile-form-container .dash-radio-items,
-  #profile-form-container .dash-checklist {
-    color: #1e293b !important;
-  }
-  
-  /* All text in the profile form container */
-  #profile-form-container * {
-    color: #1e293b !important;
-  }
-  
-  /* Override for specific elements that should be different colors */
-  #profile-form-container input::placeholder,
-  #profile-form-container textarea::placeholder {
-    color: #94a3b8 !important;
-  }
-  
-  #profile-form-container .ci-filter-info {
-    color: #475569 !important;
-  }
-  
-  /* Specific fixes for RadioItems with empty labels */
-  /* The RadioItems in notification_settings.py have empty labels, so we need to add text via CSS */
-  #notification-type-radio .dash-radio-item:first-child::after {
-    content: "Whitelist";
-    color: #1e293b !important;
-    margin-left: 8px;
-  }
-  
-  #notification-type-radio .dash-radio-item:last-child::after {
-    content: "Blacklist";
-    color: #1e293b !important;
-    margin-left: 8px;
-  }
-  
-  #notification-method-radio .dash-radio-item:first-child::after {
-    content: "Apprise (Erweitert)";
-    color: #1e293b !important;
-    margin-left: 8px;
-  }
-  
-  #notification-method-radio .dash-radio-item:last-child::after {
-    content: "E-Mail (Einfach)";
-    color: #1e293b !important;
-    margin-left: 8px;
-  }
-  
-  /* Make sure the radio buttons themselves are visible */
-  #notification-type-radio input[type="radio"],
-  #notification-method-radio input[type="radio"] {
-    accent-color: #60a5fa !important;
-  }
-  
-  /* Make sure checkboxes are visible */
-  #ci-checkboxes-container input[type="checkbox"] {
-    accent-color: #60a5fa !important;
-  }
-  
-  /* Dark theme for logs page */
-  .log-info {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    color: var(--gray-700);
-  }
-  
-  .log-info-item {
-    color: var(--gray-700);
-  }
-  
-  .log-info-item strong {
-    color: var(--gray-800);
-  }
-  
-  .log-controls {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-  }
-  
-  .control-group {
-    color: var(--gray-700);
-  }
-  
-  .control-group label {
-    color: var(--gray-700);
-  }
-  
-  .log-content {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-  }
-  
-  .log-text {
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    color: var(--gray-800);
-    font-family: 'Courier New', monospace;
-  }
-  
-  .log-text:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-  }
-  
-  /* Dark theme for log file info */
-  .log-file-info {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    color: var(--gray-700);
-  }
-  
-  .log-file-info strong {
-    color: var(--gray-800);
-  }
-  
-  .log-file-info .file-path {
-    color: var(--primary-color);
-    font-family: 'Courier New', monospace;
-  }
-  
-  .log-file-info .file-size {
-    color: var(--gray-600);
-  }
-  
-  .log-file-info .file-modified {
-    color: var(--gray-600);
-  }
-  
-  .log-file-info .file-lines {
-    color: var(--gray-600);
-  }
-  
-  .log-file-info .file-status {
-    color: var(--secondary-color);
-  }
-  
-  /* Dark theme for hours dropdown in plot page */
-  .hours-dropdown .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .hours-dropdown .Select-control:hover {
-    border-color: #60a5fa !important;
-  }
-  
-  .hours-dropdown .Select-control .Select-value {
-    color: #f1f5f9 !important;
-  }
-  
-  .hours-dropdown .Select-control .Select-placeholder {
-    color: #94a3b8 !important;
-  }
-  
-  .hours-dropdown .Select-menu-outer {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  .hours-dropdown .Select-option {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .hours-dropdown .Select-option:hover {
-    background-color: #334155 !important;
-  }
-  
-  .hours-dropdown .Select-option.is-selected {
-    background-color: #60a5fa !important;
-    color: #ffffff !important;
-  }
-  
-  .hours-dropdown .Select-option.is-focused {
-    background-color: #334155 !important;
-  }
-  
-  .hours-dropdown .Select-arrow {
-    border-top-color: #f1f5f9 !important;
-  }
-  
-  .hours-dropdown .Select-clear {
-    color: #f1f5f9 !important;
-  }
-
-  /* Dark theme for plot page comprehensive statistics */
-  .comprehensive-stats {
-    color: #f1f5f9 !important; /* bright text */
-  }
-
-  /* Wrapper direkt unter dem Container */
-  .comprehensive-stats > div {
-    background-color: #0f172a !important; /* very dark bg */
-    border: 1px solid #334155 !important;
-    box-shadow: var(--shadow-md);
-    padding: var(--spacing-lg) !important; /* Abstand zwischen Rahmen und Boxen */
-    color: #f1f5f9 !important;
-  }
-
-  /* Eigentliche Boxen (Abschnitte) innerhalb des Wrappers */
-  .comprehensive-stats > div > div {
-    background-color: #0f172a !important;
-    border: 1px solid #334155 !important;
-    box-shadow: var(--shadow-md);
-    color: #f1f5f9 !important;
-  }
-
-  /* Tiefer verschachtelte Boxen ebenfalls abdecken */
-  .comprehensive-stats > div > div > div {
-    background-color: #0f172a !important;
-    border-color: #334155 !important;
-    color: #f1f5f9 !important;
-  }
-
-  /* Inline-Styles mit hellem Hintergrund hart übersteuern */
-  .comprehensive-stats [style*="background"],
-  .comprehensive-stats [style*="background-color"] {
-    background-color: #0f172a !important;
-    color: #f1f5f9 !important;
-  }
-
-  .comprehensive-stats h3,
-  .comprehensive-stats h4,
-  .comprehensive-stats p,
-  .comprehensive-stats span,
-  .comprehensive-stats strong {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for Hamburger menu (high contrast) */
-  details summary {
-    background: #0f172a !important;
-    border-color: #60a5fa !important;
-    color: var(--gray-800) !important;
-  }
-  
-  details summary:hover {
-    background: #1e293b !important;
-    color: #ffffff !important;
-  }
-  
-  details[open] summary {
-    background: #0f172a !important;
-    border-color: #60a5fa !important;
-    color: var(--gray-800) !important;
-  }
-  
-  #hamburger-menu-content {
-    background: #0b1220 !important;
-    border: 1px solid #334155 !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55) !important;
-  }
-  
-  #hamburger-menu-content a {
-    color: var(--gray-800) !important;
-  }
-  
-  /* Dark theme for info box "Über diese Funktion" */
-  .info-box {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .info-box h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  .info-box p {
-    color: #e2e8f0 !important;
-  }
-  
-  .info-box a {
-    color: #60a5fa !important;
-  }
-  
-  .info-box a:hover {
-    color: #93c5fd !important;
-  }
-  
-  /* Dark theme for profiles container and profile cards */
-  #profiles-container {
-    color: #f1f5f9 !important;
-  }
-  
-  #profiles-container > div {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #profiles-container h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  #profiles-container p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Override inline styles for profile cards */
-  #profiles-container > div[style*="backgroundColor"] {
-    background-color: #1e293b !important;
-  }
-  
-  #profiles-container > div[style*="background-color"] {
-    background-color: #1e293b !important;
-  }
-  
-  #profiles-container > div[style*="color"] {
-    color: #f1f5f9 !important;
-  }
-  
-  #profiles-container > div[style*="border"] {
-    border: 1px solid #475569 !important;
-  }
-  
-  /* Force override all inline styles for profile cards */
-  #profiles-container > div[style] {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  /* Dark theme for profile cards with class */
-  .profile-card {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .profile-card h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  .profile-card p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for user-info container */
-  #user-info {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for user-info card with class */
-  .user-info-card {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for profile form container */
-  #profile-form-container {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #profile-form-container h3 {
-    color: #f1f5f9 !important;
-  }
-  
-  #profile-form-container label {
-    color: #e2e8f0 !important;
-  }
-  
-  #profile-form-container .dash-radio-items,
-  #profile-form-container .dash-checklist {
-    color: #e2e8f0 !important;
-  }
-  
-  #profile-form-container .ci-filter-info {
-    color: #94a3b8 !important;
-  }
-  
-  /* Dark theme for CI checkboxes container */
-  #ci-checkboxes-container {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #ci-checkboxes-container div {
-    background-color: #334155 !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #ci-checkboxes-container label {
-    color: #f1f5f9 !important;
-  }
-  
-  #ci-checkboxes-container label strong {
-    color: #f1f5f9 !important;
-  }
-  
-  #ci-checkboxes-container label span {
-    color: #cbd5e1 !important;
-  }
-  
-  #ci-checkboxes-container input[type="checkbox"] {
-    accent-color: #60a5fa !important;
-  }
-  
-  /* Dark theme for CI filter info */
-  #ci-filter-info {
-    color: #94a3b8 !important;
-  }
-  
-  /* Dark theme for CI load status */
-  #ci-load-status {
-    color: #f87171 !important;
-  }
-  
-  /* Dark theme for CI checkboxes container with class */
-  .ci-checkboxes-container {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .ci-checkboxes-container div {
-    background-color: #334155 !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .ci-checkboxes-container label {
-    color: #f1f5f9 !important;
-  }
-  
-  .ci-checkboxes-container label strong {
-    color: #f1f5f9 !important;
-  }
-  
-  .ci-checkboxes-container label span {
-    color: #cbd5e1 !important;
-  }
-  
-  .ci-checkboxes-container input[type="checkbox"] {
-    accent-color: #60a5fa !important;
-  }
-  
-  /* Dark theme for admin logs page */
-  #admin-log-content-display {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for admin log display with class */
-  .admin-log-display {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for logs page elements */
-  .log-info {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .log-info-item {
-    color: #e2e8f0 !important;
-  }
-  
-  .log-info-item strong {
-    color: #f1f5f9 !important;
-  }
-  
-  .log-content {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .log-text {
-    background-color: #0f172a !important;
-    border: 1px solid #475569 !important;
-    color: #e2e8f0 !important;
-  }
-  
-  .log-text:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-  }
-  
-  /* Dark theme for log file info */
-  .log-file-info {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #e2e8f0 !important;
-  }
-  
-  .log-file-info strong {
-    color: #f1f5f9 !important;
-  }
-  
-  .log-file-info .file-path {
-    color: #60a5fa !important;
-  }
-  
-  .log-file-info .file-size {
-    color: #cbd5e1 !important;
-  }
-  
-  .log-file-info .file-modified {
-    color: #cbd5e1 !important;
-  }
-  
-  .log-file-info .file-lines {
-    color: #cbd5e1 !important;
-  }
-  
-  .log-file-info .file-status {
-    color: #34d399 !important;
-  }
-  
-  /* Dark theme for log controls */
-  .log-controls {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .log-controls h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  .log-controls label {
-    color: #e2e8f0 !important;
-  }
-  
-  .control-group {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for all dropdown/select elements */
-  .dash-dropdown .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Specific override for apprise service dropdown */
-  .dash-dropdown#apprise-service-dropdown .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-dropdown .Select-control:hover {
-    border-color: #60a5fa !important;
-  }
-  
-  .dash-dropdown .Select-control .Select-value {
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-dropdown .Select-control .Select-placeholder {
-    color: #94a3b8 !important;
-  }
-  
-  .dash-dropdown .Select-control .Select-input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  .dash-dropdown .Select-control .Select-input input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  .dash-dropdown .Select-menu-outer {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  }
-  
-  .dash-dropdown .Select-option {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-dropdown .Select-option:hover {
-    background-color: #334155 !important;
-  }
-  
-  .dash-dropdown .Select-option.is-selected {
-    background-color: #60a5fa !important;
-    color: #ffffff !important;
-  }
-  
-  .dash-dropdown .Select-option.is-focused {
-    background-color: #334155 !important;
-  }
-  
-  .dash-dropdown .Select-arrow {
-    border-top-color: #f1f5f9 !important;
-  }
-  
-  .dash-dropdown .Select-clear {
-    color: #f1f5f9 !important;
-  }
-  
-  .dash-dropdown .Select-clear:hover {
-    color: #f87171 !important;
-  }
-  
-  /* Fallback: react-select without dash-dropdown class */
-  .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  .Select-placeholder {
-    color: #94a3b8 !important;
-  }
-  .Select-value, .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  .Select-menu-outer {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  }
-  .Select-option {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  .Select-option:hover {
-    background-color: #334155 !important;
-  }
-  .Select-option.is-selected {
-    background-color: #60a5fa !important;
-    color: #ffffff !important;
-  }
-  .Select-option.is-focused {
-    background-color: #334155 !important;
-  }
-  /* Ensure all option text is visible (also nested spans) */
-  .Select-option *,
-  .Select-option.is-selected *,
-  .Select-option.is-focused * {
-    color: inherit !important;
-  }
-  /* Disabled options */
-  .Select-option.is-disabled,
-  .Select-option.is-disabled * {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  /* Menu text contrast (global fallback) */
-  .Select-menu,
-  .Select-menu * {
-    color: #f1f5f9 !important;
-  }
-  /* Subtle separators between options */
-  .Select-option {
-    border-bottom: 1px solid #334155 !important;
-  }
-  /* Increase option contrast globally */
-  .Select-option {
-    font-weight: 600 !important;
-    opacity: 1 !important;
-  }
-  .Select-option:hover,
-  .Select-option.is-focused {
-    color: #ffffff !important;
-  }
-  .Select-arrow {
-    border-top-color: #f1f5f9 !important;
-  }
-  .Select-clear {
-    color: #f1f5f9 !important;
-  }
-  .Select-clear:hover {
-    color: #f87171 !important;
-  }
-
-  /* Dark theme for time selector dropdowns */
-  .time-selector .dash-dropdown .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-control:hover {
-    border-color: #60a5fa !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-control .Select-value {
-    color: #f1f5f9 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-control .Select-placeholder {
-    color: #94a3b8 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-menu-outer {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-option {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-option:hover {
-    background-color: #334155 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-option.is-selected {
-    background-color: #60a5fa !important;
-    color: #ffffff !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-option.is-focused {
-    background-color: #334155 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-arrow {
-    border-top-color: #f1f5f9 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-clear {
-    color: #f1f5f9 !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-control .Select-input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  .time-selector .dash-dropdown .Select-control .Select-input input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  /* Dark theme for admin users page */
-  #user-statistics {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-statistics h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-statistics h5 {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-statistics p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for user statistics cards */
-  #user-statistics > div > div {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #user-statistics > div > div h5 {
-    color: #60a5fa !important;
-  }
-  
-  #user-statistics > div > div p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for user search section */
-  #user-search-results {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-search-results h5 {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-search-results h6 {
-    color: #f1f5f9 !important;
-  }
-  
-  #user-search-results p {
-    color: #e2e8f0 !important;
-  }
-  
-  #user-search-results ul {
-    color: #e2e8f0 !important;
-  }
-  
-  #user-search-results li {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for user search results container */
-  #user-search-results > div {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  /* Dark theme for all users list */
-  #all-users-list {
-    color: #f1f5f9 !important;
-  }
-  
-  #all-users-list p {
-    color: #e2e8f0 !important;
-  }
-  
-  #all-users-list table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #all-users-list th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #all-users-list td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #all-users-list tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  #all-users-list tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Dark theme for stat cards with class */
-  .stat-card {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .stat-card h5 {
-    color: #60a5fa !important;
-  }
-  
-  .stat-card p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for user search result with class */
-  .user-search-result {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .user-search-result h5 {
-    color: #f1f5f9 !important;
-  }
-  
-  .user-search-result h6 {
-    color: #f1f5f9 !important;
-  }
-  
-  .user-search-result p {
-    color: #e2e8f0 !important;
-  }
-  
-  .user-search-result ul {
-    color: #e2e8f0 !important;
-  }
-  
-  .user-search-result li {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Additional styling for user search results */
-  .user-search-result {
-    margin-bottom: 20px !important;
-  }
-  
-  .user-search-result h5 {
-    margin-bottom: 10px !important;
-    font-size: 18px !important;
-  }
-  
-  .user-search-result h6 {
-    margin-top: 15px !important;
-    margin-bottom: 8px !important;
-    font-size: 16px !important;
-  }
-  
-  .user-search-result p {
-    margin-bottom: 8px !important;
-    line-height: 1.4 !important;
-  }
-  
-  .user-search-result ul {
-    margin-left: 20px !important;
-    margin-bottom: 15px !important;
-  }
-  
-  .user-search-result li {
-    margin-bottom: 4px !important;
-  }
-  
-  .user-search-result button {
-    background-color: #dc2626 !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 10px 20px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    transition: background-color 0.2s ease !important;
-  }
-  
-  .user-search-result button:hover {
-    background-color: #b91c1c !important;
-  }
-  
-  /* Dark theme for user search input */
-  .user-search-input {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .user-search-input:focus {
-    border-color: #60a5fa !important;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
-    outline: none !important;
-  }
-  
-  .user-search-input::placeholder {
-    color: #94a3b8 !important;
-  }
-  
-  /* Dark theme for apprise service selection */
-  .apprise-service-selection {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .apprise-service-selection label {
-    color: #f1f5f9 !important;
-  }
-  
-  /* Apprise service dropdown uses general dropdown styles */
-  
-  /* Apprise service dropdown (ID-based selectors to avoid class dependency) */
-  #apprise-service-dropdown .Select-control {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  #apprise-service-dropdown .Select-control:hover {
-    border-color: #60a5fa !important;
-  }
-  #apprise-service-dropdown .Select-value,
-  #apprise-service-dropdown .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  #apprise-service-dropdown .Select-placeholder {
-    color: #94a3b8 !important;
-  }
-  #apprise-service-dropdown .Select-input,
-  #apprise-service-dropdown .Select-input input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-  /* Selected value label (single select) */
-  #apprise-service-dropdown .Select--single > .Select-control .Select-value .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  /* Multi-value chips */
-  #apprise-service-dropdown .Select--multi .Select-value {
-    background-color: #334155 !important;
-    border: 1px solid #475569 !important;
-  }
-  #apprise-service-dropdown .Select--multi .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  #apprise-service-dropdown .Select--multi .Select-value-icon {
-    color: #cbd5e1 !important;
-  }
-  #apprise-service-dropdown .Select-menu-outer {
-    background-color: #1e293b !important;
-    border: 2px solid #475569 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  }
-  #apprise-service-dropdown .Select-option {
-    background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-  }
-  #apprise-service-dropdown .Select-option:hover {
-    background-color: #334155 !important;
-  }
-  #apprise-service-dropdown .Select-option.is-selected {
-    background-color: #60a5fa !important;
-    color: #ffffff !important;
-  }
-  #apprise-service-dropdown .Select-option.is-focused {
-    background-color: #334155 !important;
-  }
-  /* Ensure option text is visible (also nested elements) */
-  #apprise-service-dropdown .Select-option *,
-  #apprise-service-dropdown .Select-option.is-selected *,
-  #apprise-service-dropdown .Select-option.is-focused * {
-    color: inherit !important;
-  }
-  /* Disabled category headers */
-  #apprise-service-dropdown .Select-option.is-disabled,
-  #apprise-service-dropdown .Select-option.is-disabled * {
-    color: #94a3b8 !important;
-    opacity: 1 !important;
-  }
-  /* Ensure menu text inside apprise dropdown has high contrast */
-  #apprise-service-dropdown .Select-menu,
-  #apprise-service-dropdown .Select-menu * {
-    color: #f1f5f9 !important;
-  }
-  #apprise-service-dropdown .Select-option {
-    border-bottom: 1px solid #334155 !important;
-  }
-  /* Increase option contrast for apprise dropdown */
-  #apprise-service-dropdown .Select-option {
-    font-weight: 600 !important;
-    opacity: 1 !important;
-  }
-  #apprise-service-dropdown .Select-option:hover,
-  #apprise-service-dropdown .Select-option.is-focused {
-    color: #ffffff !important;
-  }
-
-  
-  /* Dark theme for apprise wiki link */
-  .apprise-wiki-link a {
-    color: #60a5fa !important;
-    text-decoration: none !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-  }
-  
-  .apprise-wiki-link a:hover {
-    color: #93c5fd !important;
-    text-decoration: underline !important;
-  }
-
-  /* Dark mode container styling for wiki link */
-  .apprise-wiki-link,
-  #apprise-wiki-link {
-    margin-top: 6px !important;
-    padding-top: 6px !important;
-    border-top: 1px solid #334155 !important;
-    color: #cbd5e1 !important;
-  }
-  .apprise-wiki-link a:visited,
-  #apprise-wiki-link a:visited {
-    color: #60a5fa !important;
-  }
-  .apprise-wiki-link a:focus-visible,
-  #apprise-wiki-link a:focus-visible {
-    outline: 2px solid #93c5fd !important;
-    outline-offset: 2px !important;
-    border-radius: 4px !important;
-  }
-  /* Force high-contrast link/text color inside wiki link container */
-  #apprise-wiki-link,
-  #apprise-wiki-link *,
-  #apprise-wiki-link a {
-    color: #93c5fd !important;
-  }
-  #apprise-wiki-link a:hover {
-    color: #bfdbfe !important;
-  }
-  
-  /* Dark theme for users table with class */
-  .users-table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .users-table th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .users-table td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .users-table tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  .users-table tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Additional styling for users table consistency */
-  .users-table {
-    font-size: 14px !important;
-  }
-  
-  .users-table th {
-    padding: 12px 8px !important;
-    text-align: left !important;
-    font-weight: 600 !important;
-  }
-  
-  .users-table td {
-    padding: 10px 8px !important;
-    vertical-align: middle !important;
-  }
-  
-  .users-table button {
-    background-color: #dc2626 !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 4px !important;
-    padding: 6px 12px !important;
-    font-size: 12px !important;
-    cursor: pointer !important;
-    transition: background-color 0.2s ease !important;
-  }
-  
-  .users-table button:hover {
-    background-color: #b91c1c !important;
-  }
-  
-  /* Dark theme for admin stats page */
-  #admin-stats-content {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-stats-content h3 {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-stats-content h4 {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-stats-content h5 {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-stats-content h6 {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-stats-content p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for notification stats display */
-  #notification-stats-display {
-    color: #f1f5f9 !important;
-  }
-  
-  #notification-stats-display h5 {
-    color: #f1f5f9 !important;
-  }
-  
-  #notification-stats-display h6 {
-    color: #f1f5f9 !important;
-  }
-  
-  #notification-stats-display p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for notification stats cards */
-  #notification-stats-display > div > div {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #notification-stats-display > div > div h6 {
-    color: #60a5fa !important;
-  }
-  
-  #notification-stats-display > div > div p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for recent notifications table */
-  #recent-notifications-table {
-    color: #f1f5f9 !important;
-  }
-  
-  #recent-notifications-table table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #recent-notifications-table th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #recent-notifications-table td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #recent-notifications-table tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  #recent-notifications-table tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Dark theme for apprise prefix analysis */
-  #apprise-prefix-analysis {
-    color: #f1f5f9 !important;
-  }
-  
-  #apprise-prefix-analysis p {
-    color: #e2e8f0 !important;
-  }
-  
-  #apprise-prefix-analysis strong {
-    color: #f1f5f9 !important;
-  }
-  
-  #apprise-prefix-analysis span {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for admin visitor stats */
-  #admin-visitor-stats-content {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-visitor-stats-content h6 {
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-visitor-stats-content p {
-    color: #e2e8f0 !important;
-  }
-  
-  /* Dark theme for visitor stats cards */
-  #admin-visitor-stats-content > div > div {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-visitor-stats-content > div > div h6 {
-    color: #60a5fa !important;
-  }
-  
-  #admin-visitor-stats-content > div > div p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for visitor stats tables */
-  #admin-visitor-stats-content table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  #admin-visitor-stats-content th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #admin-visitor-stats-content td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  #admin-visitor-stats-content tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  #admin-visitor-stats-content tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Dark theme for notification stat cards with class */
-  .notification-stat-card {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .notification-stat-card h6 {
-    color: #60a5fa !important;
-  }
-  
-  .notification-stat-card p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for notifications table with class */
-  .notifications-table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .notifications-table th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .notifications-table td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .notifications-table tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  .notifications-table tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Dark theme for visitor stat cards with class */
-  .visitor-stat-card {
-    background-color: #1e293b !important;
-    border: none !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .visitor-stat-card h6 {
-    color: #60a5fa !important;
-  }
-  
-  .visitor-stat-card p {
-    color: #cbd5e1 !important;
-  }
-  
-  /* Dark theme for visitor stats tables with class */
-  .visitor-stats-table {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .visitor-stats-table th {
-    background-color: #334155 !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .visitor-stats-table td {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    border: 1px solid #475569 !important;
-  }
-  
-  .visitor-stats-table tr:nth-child(even) td {
-    background-color: #334155 !important;
-  }
-  
-  .visitor-stats-table tr:hover td {
-    background-color: rgba(96, 165, 250, 0.15) !important;
-  }
-  
-  /* Dark theme for admin stats dropdowns */
-  #stats-timeframe-dropdown .Select-control .Select-input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  #stats-timeframe-dropdown .Select-control .Select-input input {
-    color: #f1f5f9 !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-  }
-  
-  /* General fix for all Select-input elements */
-  .Select-input {
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-    color: #f1f5f9 !important;
-  }
-  
-  .Select-input input {
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    line-height: normal !important;
-    color: #f1f5f9 !important;
-  }
-  /* Global fallback for selected value label */
-  .Select--single > .Select-control .Select-value .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  /* Global fallback for multi-value chips */
-  .Select--multi .Select-value {
-    background-color: #334155 !important;
-    border: 1px solid #475569 !important;
-  }
-  .Select--multi .Select-value-label {
-    color: #f1f5f9 !important;
-  }
-  .Select--multi .Select-value-icon {
-    color: #cbd5e1 !important;
-  }
-  
-  #hamburger-menu-content a:hover {
-    background: rgba(96, 165, 250, 0.18) !important;
-    color: #ffffff !important;
-  }
-  
-  #hamburger-menu-content a:focus-visible {
-    outline: 2px solid #93c5fd !important;
-    outline-offset: 2px !important;
-  }
-  
-  #hamburger-menu-content a * {
-    color: inherit !important;
-  }
-
-  /* Increase specificity: scope to header to overrule any other assets */
-  header details summary.hamburger-menu-trigger {
-    background: #0f172a !important;
-    border: 2px solid #60a5fa !important;
-    color: #ffffff !important;
-  }
-
-  header details[open] > summary.hamburger-menu-trigger {
-    background: #0f172a !important;
-    border: 2px solid #60a5fa !important;
-    color: #ffffff !important;
-  }
-
-  header details summary.hamburger-menu-trigger .material-icons {
-    color: inherit !important;
-  }
-
-  header #hamburger-menu-content {
-    background: #0b1220 !important;
-    border: 1px solid #334155 !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55) !important;
-  }
-
-  header #hamburger-menu-content a {
-    color: #e5e7eb !important; /* text */
-  }
-
-  header #hamburger-menu-content a:hover {
-    background: rgba(96, 165, 250, 0.22) !important;
-    color: #ffffff !important;
-  }
-
-  header #hamburger-menu-content a .material-icons,
-  header #hamburger-menu-content a span {
-    color: inherit !important;
-  }
-}
-
-/* Extra contrast for specific components in Dark Mode */
-@media (prefers-color-scheme: dark) {
-  /* Incident heatmap container – increase contrast and readability */
-  #incident-heatmap {
-    background-color: #0b1220 !important;
-    border: 1px solid #334155 !important;
-    border-radius: 12px !important;
-    box-shadow: var(--shadow-md);
-    padding: 12px !important;
-  }
-
-  /* Plotly SVG text inside the graph */
-  #incident-heatmap .main-svg text,
-  #incident-heatmap .main-svg .xtick text,
-  #incident-heatmap .main-svg .ytick text,
-  #incident-heatmap .main-svg .cbtitle,
-  #incident-heatmap .main-svg .g-xtitle text,
-  #incident-heatmap .main-svg .g-ytitle text {
-    fill: #e5e7eb !important;
-  }
-
-  /* Colorbar tick labels */
-  #incident-heatmap .main-svg .colorbar text {
-    fill: #e5e7eb !important;
-  }
-
-  /* Hover label contrast */
-  #incident-heatmap .hoverlayer .hovertext {
-    fill: #0b1220 !important;
-  }
-  #incident-heatmap .hoverlayer .hovertext .bg {
-    fill: #f8fafc !important;
-    stroke: #93c5fd !important;
-  }
-
-  /* Warning message card – stronger contrast */
-  .warning-message {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #f1f5f9 !important;
-    border-radius: 10px !important;
-    box-shadow: var(--shadow-md);
-    padding: 12px 16px !important;
-  }
-
-  .warning-message a:any-link {
-    color: #93c5fd !important;
-    border-bottom-color: #93c5fd !important;
-  }
-
-  .warning-message a:any-link:hover {
-    color: #bfdbfe !important;
-  }
-}
-
-/* Social icon links */
-.social-links { display: inline-flex; align-items: center; gap: 10px; margin-top: 6px; }
-.social-links a { display: inline-flex; align-items: center; gap: 6px; color: var(--primary-color); text-decoration: none; border-bottom: 1px solid transparent; transition: var(--transition-fast); }
-.social-links a:hover { color: var(--primary-dark); border-bottom-color: var(--primary-color); transform: translateY(-1px); }
-.social-links img { width: 18px; height: 18px; display: inline-block; }
-
-@media (prefers-color-scheme: dark) {
-  .social-links a { color: #93c5fd !important; }
-  .social-links a:hover { color: #bfdbfe !important; border-bottom-color: #93c5fd !important; }
 }
