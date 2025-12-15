@@ -25,15 +25,17 @@ _home_layout_cache_ttl = 60  # seconds
 # Limit how many items we render per product group to keep DOM small
 _max_items_per_group = 50
 
+
 def load_config():
     """Load configuration from YAML file with caching"""
     global _home_config_cache, _home_config_cache_timestamp
 
     current_time = time.time()
-    if (not _home_config_cache or
-        current_time - _home_config_cache_timestamp > _home_config_cache_ttl):
+    if (not _home_config_cache or current_time - _home_config_cache_timestamp
+            > _home_config_cache_ttl):
 
-        config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
+        config_path = os.path.join(os.path.dirname(__file__), '..',
+                                   'config.yaml')
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
                 _home_config_cache = yaml.safe_load(f) or {}
@@ -42,7 +44,8 @@ def load_config():
             # Limit cache size
             if len(_home_config_cache) > _home_config_cache_max_size:
                 # Keep only the most recent entries
-                keys = list(_home_config_cache.keys())[:_home_config_cache_max_size]
+                keys = list(
+                    _home_config_cache.keys())[:_home_config_cache_max_size]
                 _home_config_cache = {k: _home_config_cache[k] for k in keys}
         except (FileNotFoundError, Exception):
             _home_config_cache = {}
@@ -50,14 +53,17 @@ def load_config():
 
     return _home_config_cache
 
+
 def load_core_config():
     """Load core configuration from cached config"""
     config = load_config()
     return config.get('core', {})
 
+
 dash.register_page(__name__, path='/')
 
 # No callback needed - table is scrollable
+
 
 def create_incidents_table(incidents_data, show_all=False):
     """Erstellt eine erweiterbare Tabelle mit den letzten Incidents"""
@@ -71,8 +77,10 @@ def create_incidents_table(incidents_data, show_all=False):
     table_rows = []
     for incident in display_incidents:
         # Determine status styling
-        status_class = 'incident-ongoing' if incident['status'] == 'ongoing' else 'incident-resolved'
-        status_text = 'Noch gestört' if incident['status'] == 'ongoing' else 'Wieder aktiv'
+        status_class = 'incident-ongoing' if incident[
+            'status'] == 'ongoing' else 'incident-resolved'
+        status_text = 'Noch gestört' if incident[
+            'status'] == 'ongoing' else 'Wieder aktiv'
 
         # Format duration
         duration_hours = incident['duration_minutes'] / 60.0
@@ -82,31 +90,37 @@ def create_incidents_table(incidents_data, show_all=False):
             duration_text = f"{duration_hours:.1f} Std"
 
         # Format timestamps
-        start_time = pd.to_datetime(incident['incident_start']).tz_convert('Europe/Berlin').strftime('%d.%m.%Y %H:%M')
+        start_time = pd.to_datetime(incident['incident_start']).tz_convert(
+            'Europe/Berlin').strftime('%d.%m.%Y %H:%M')
         end_time = ''
         if incident['incident_end']:
-            end_time = pd.to_datetime(incident['incident_end']).tz_convert('Europe/Berlin').strftime('%d.%m.%Y %H:%M')
+            end_time = pd.to_datetime(incident['incident_end']).tz_convert(
+                'Europe/Berlin').strftime('%d.%m.%Y %H:%M')
         else:
             end_time = 'Laufend'
 
-        table_rows.append(html.Tr([
-            html.Td([
-                html.A(incident['ci'], href=f'/plot?ci={incident["ci"]}', className='ci-link'),
-                html.Br(),
-                html.Span(incident['name'], className='ci-name')
-            ]),
-            html.Td([
-                html.Span(incident['organization'], className='org-name'),
-                html.Br(),
-                html.Span(incident['product'], className='product-name')
-            ]),
-            html.Td(start_time, className='timestamp'),
-            html.Td(end_time, className='timestamp'),
-            html.Td(duration_text, className='duration'),
-            html.Td([
-                html.Span(status_text, className=f'status-badge {status_class}')
-            ])
-        ]))
+        table_rows.append(
+            html.Tr([
+                html.Td([
+                    html.A(incident['ci'],
+                           href=f'/plot?ci={incident["ci"]}',
+                           className='ci-link'),
+                    html.Br(),
+                    html.Span(incident['name'], className='ci-name')
+                ]),
+                html.Td([
+                    html.Span(incident['organization'], className='org-name'),
+                    html.Br(),
+                    html.Span(incident['product'], className='product-name')
+                ]),
+                html.Td(start_time, className='timestamp'),
+                html.Td(end_time, className='timestamp'),
+                html.Td(duration_text, className='duration'),
+                html.Td([
+                    html.Span(status_text,
+                              className=f'status-badge {status_class}')
+                ])
+            ]))
 
     # No expand button needed - table is scrollable
 
@@ -123,23 +137,33 @@ def create_incidents_table(incidents_data, show_all=False):
                 ])
             ]),
             html.Tbody(table_rows)
-        ], className='incidents-table')
-    ], className='incidents-table-container')
+        ],
+                   className='incidents-table')
+    ],
+                    className='incidents-table-container')
+
 
 def create_accordion_element(group_name, group_data):
     """Create accordion element for a group of CIs"""
     # Ensure group_data is a DataFrame and handle it properly
     if hasattr(group_data, 'empty') and group_data.empty:
-        return html.Div(className='accordion-element', children=[
-            html.Div(className='accordion-element-title', children=[
-                html.Span(className='availability-icon unavailable'),
-                html.Span(className='group-name', children=f'{group_name} (0/0)'),
-                html.Span(className='expand-collapse-icon', children='+')
-            ]),
-            html.Div(className='accordion-element-content', children=[
-                html.P('Keine Daten verfügbar für diese Gruppe.')
+        return html.Div(
+            className='accordion-element',
+            children=[
+                html.Div(
+                    className='accordion-element-title',
+                    children=[
+                        html.Span(className='availability-icon unavailable'),
+                        html.Span(className='group-name',
+                                  children=f'{group_name} (0/0)'),
+                        html.Span(className='expand-collapse-icon',
+                                  children='+')
+                    ]),
+                html.Div(className='accordion-element-content',
+                         children=[
+                             html.P('Keine Daten verfügbar für diese Gruppe.')
+                         ])
             ])
-        ])
 
     # Calculate availability statistics
     current_availability_sum = group_data['current_availability'].sum()
@@ -160,48 +184,54 @@ def create_accordion_element(group_name, group_data):
     # Compute remaining count for hint
     remaining = max(0, len(group_data) - len(limited_group_data))
 
-    return html.Div(className='accordion-element', children = [
-        html.Div(
-            className='accordion-element-title',
-            children = [
-                html.Span(
-                    className=f'availability-icon {availability_class}',
-                ),
-                html.Span(
-                    className = 'group-name',
-                    children = f'{group_name} ({available_count}/{total_count})'
-                ),
-                html.Span(className='expand-collapse-icon', children='+')
-            ]
-        ),
-        html.Div(className='accordion-element-content', children = [
-            html.Ul(children = [
-                html.Li([
+    return html.Div(
+        className='accordion-element',
+        children=[
+            html.Div(
+                className='accordion-element-title',
+                children=[
                     html.Span(
-                        className='availability-icon ' + (
-                            'available' if row['current_availability'] == 1
-                            else 'unavailable'
-                        )
-                    ),
-                    html.Div([
-                        html.A(str(row['ci']), href='/plot?ci=' + str(row['ci'])),
-                        ': ' + row['name'] + ', ' + row['organization'] + ', ' + pretty_timestamp(row['time'])
-                    ])
-                ]) for _, row in limited_group_data.iterrows()
-            ]),
-            (html.Div(
-                ['… und ', html.Strong(str(remaining)), ' weitere Einträge, siehe ', html.A('Statistiken', href='/stats')]
-            ) if remaining > 0 else None)
+                        className=f'availability-icon {availability_class}', ),
+                    html.Span(
+                        className='group-name',
+                        children=
+                        f'{group_name} ({available_count}/{total_count})'),
+                    html.Span(className='expand-collapse-icon', children='+')
+                ]),
+            html.Div(
+                className='accordion-element-content',
+                children=[
+                    html.Ul(children=[
+                        html.Li([
+                            html.Span(
+                                className='availability-icon ' +
+                                ('available' if row['current_availability'] ==
+                                 1 else 'unavailable')),
+                            html.Div([
+                                html.A(str(row['ci']),
+                                       href='/plot?ci=' +
+                                       str(row['ci'])), ': ' + row['name'] +
+                                ', ' + row['organization'] + ', ' +
+                                pretty_timestamp(row['time'])
+                            ])
+                        ]) for _, row in limited_group_data.iterrows()
+                    ]),
+                    (html.Div([
+                        '… und ',
+                        html.Strong(str(remaining)),
+                        ' weitere Einträge, siehe ',
+                        html.A('Statistiken', href='/stats')
+                    ]) if remaining > 0 else None)
+                ])
         ])
-    ])
-
 
 
 def serve_layout():
     # Return cached layout if fresh
     global _home_layout_cache, _home_layout_cache_ts
     now_ts = time.time()
-    if _home_layout_cache is not None and (now_ts - _home_layout_cache_ts) < _home_layout_cache_ttl:
+    if _home_layout_cache is not None and (
+            now_ts - _home_layout_cache_ts) < _home_layout_cache_ttl:
         return _home_layout_cache
     # Load core configurations (now cached)
     core_config = load_core_config()
@@ -213,7 +243,9 @@ def serve_layout():
     # Load only ongoing incidents directly from database
     incidents_data = []
     try:
-        incidents_data = get_recent_incidents(limit=20, only_enabled=True, only_ongoing=True)
+        incidents_data = get_recent_incidents(limit=20,
+                                              only_enabled=True,
+                                              only_ongoing=True)
     except Exception as e:
         print(f"Error loading incidents data: {e}")
         incidents_data = []
@@ -233,15 +265,21 @@ def serve_layout():
                 print(f"Loading data from API: {config_url}")
                 # For TimescaleDB mode, we don't need to call update_file
                 # The cron job should handle API updates
-                print("API updates are handled by the cron job in TimescaleDB mode")
+                print(
+                    "API updates are handled by the cron job in TimescaleDB mode"
+                )
             except Exception as e:
                 print(f"Error loading data from API: {e}")
 
         # If still empty, show message
         if cis.empty:
             layout = html.Div([
-                html.P('Keine Daten verfügbar. Versuche Daten von der API zu laden...'),
-                html.P('Falls das Problem weiterhin besteht, überprüfen Sie die API-Verbindung.'),
+                html.
+                P('Keine Daten verfügbar. Versuche Daten von der API zu laden...'
+                  ),
+                html.
+                P('Falls das Problem weiterhin besteht, überprüfen Sie die API-Verbindung.'
+                  ),
                 html.P(f'API URL: {config_url or "Nicht konfiguriert"}'),
                 html.P('Datenbank: TimescaleDB')
             ])
@@ -250,7 +288,9 @@ def serve_layout():
     # Check if 'product' column exists
     if 'product' not in cis.columns:
         layout = html.Div([
-            html.P('Daten sind verfügbar, aber die Spalte "product" fehlt. Möglicherweise ist die Datenstruktur fehlerhaft.'),
+            html.
+            P('Daten sind verfügbar, aber die Spalte "product" fehlt. Möglicherweise ist die Datenstruktur fehlerhaft.'
+              ),
             html.P('Verfügbare Spalten: ' + ', '.join(cis.columns.tolist())),
             html.P(f'Anzahl Datensätze: {len(cis)}')
         ])
@@ -263,16 +303,17 @@ def serve_layout():
         layout = html.Div([
             html.P('Fehler beim Gruppieren der Daten nach Produkt.'),
             html.P(f'Fehler: {str(e)}'),
-            html.P(f'Verfügbare Spalten: {", ".join(cis.columns.tolist()) if not cis.empty else "Keine"}')
+            html.
+            P(f'Verfügbare Spalten: {", ".join(cis.columns.tolist()) if not cis.empty else "Keine"}'
+              )
         ])
         return layout
-
-
 
     # Create accordion elements efficiently
     accordion_elements = []
     for group_name, group_data in grouped:
-        accordion_elements.append(create_accordion_element(group_name, group_data))
+        accordion_elements.append(
+            create_accordion_element(group_name, group_data))
 
     # Force garbage collection after processing large DataFrames
     gc.collect()
@@ -298,7 +339,11 @@ def serve_layout():
         "url": _canonical,
         "name": "TI-Stats – Verfügbarkeit und Statistiken",
         "inLanguage": "de",
-        "isPartOf": {"@type": "WebSite", "url": _base, "name": "TI-Stats"}
+        "isPartOf": {
+            "@type": "WebSite",
+            "url": _base,
+            "name": "TI-Stats"
+        }
     }
 
     layout = html.Div([
@@ -307,96 +352,94 @@ def serve_layout():
         html.Meta(name='og:url', content=_canonical),
         html.Meta(name='og:image', content=_og_image),
         html.Meta(name='twitter:image', content=_og_image),
-        html.Script(type='application/ld+json', children=[json.dumps(_jsonld)]),
-        html.P([
-            'Diese Seite informiert dich über den aktuellen Status und langfristige Verfügbarkeits-Trends von IT-Diensten des deutschen öffentlichen Gesundheitssystems (Telematik Infrastruktur, TI). Das Projekt basiert auf Lukas Schmidt-Russnaks ',
-            html.A('TI-Monitoring', href='https://ti-monitoring.de'),
-            ', welches mit Statistiken, Benachrichtigungen etc. umfangreich erweitert und angepasst wurde. Daten werden alle 5 Minuten aktualisiert und derzeit für 6 Monate gespeichert.'
-        ]),
-
-        html.P([
-            'Du hast auch die Möglichkeit, Benachrichtigungen individuell zu ',
-            html.A('abonnieren', href='/notifications'),
-            '. Diese werden dir über deinen persönlichen Apprise-Link gesendet, wenn sich der Status einer der abonierten Komponenten ändert.'
-        ]),
-
-        html.Div([
-            html.Span('Oder folge den TI-Stats Bots auf Mastodon oder Bluesky: ', style={'marginRight': '6px'}),
-            html.Span([
-                html.A([
-                    html.Img(src='/assets/mastodon.svg', alt='Mastodon', style={'verticalAlign': 'middle'}),
-                    html.Span(' @ti-stats@mastodon.ti-stats.net', style={'verticalAlign': 'middle'})
-                ], href='https://mastodon.ti-stats.net/@tistatus', target='_blank', rel='me noopener noreferrer'),
-                html.Span(' · '),
-                html.A([
-                    html.Img(src='/assets/bluesky.svg', alt='Bluesky', style={'verticalAlign': 'middle'}),
-                    html.Span(' @ti-stats@bsky.social', style={'verticalAlign': 'middle'})
-                ], href='https://bsky.app/profile/ti-stats.bsky.social', target='_blank', rel='noopener noreferrer')
-            ], className='social-links')
-        ]) ,
-        html.P([
-        ]),
+        html.Script(type='application/ld+json',
+                    children=[json.dumps(_jsonld)]),
         # Incidents section
         html.Div([
             html.H3("Aktuelle Incidents", className='incidents-title'),
             html.Div([
                 dcc.Store(id='incidents-data-store', data=incidents_data),
-                html.Div(id='incidents-table-container', children=incidents_table)
-            ], className='incidents-container')
-        ], className='incidents-section'),
+                html.Div(id='incidents-table-container',
+                         children=incidents_table)
+            ],
+                     className='incidents-container')
+        ],
+                 className='incidents-section'),
 
         # Alle CIs mit Downtimes (5 sichtbar, scrollbar) – Style analog zu Incidents
-        html.Div([
-            html.H3("Alle TI-Komponenten", className='ci-all-title'),
-            html.Div([
-                dcc.Input(
-                    id='ci-all-filter',
-                    type='text',
-                    placeholder='CIs filtern (CI, Organisation oder Produkt)',
-                    style={
-                        'width': '100%',
-                        'boxSizing': 'border-box',
-                        'marginBottom': '16px',
-                        'padding': '8px 12px',
-                        'borderRadius': '6px',
-                        # Kontrast im Dark Mode: Farben von der Umgebung erben
-                        'backgroundColor': 'transparent',
-                        'color': 'inherit',
-                        'border': '1px solid rgba(128,128,128,0.35)'
-                    },
-                    className='incidents-filter-input'
-                ),
-                # Sortierzustand (Spalte & Richtung) persistieren
-                dcc.Store(id='ci-sort-state', data={'by': 'ci', 'asc': True}),
-                html.Div(id='ci-all-table-container', style={
-                    'maxHeight': '260px',  # ~5 Zeilen sichtbar
-                    'overflowY': 'auto'
-                })
-            ], className='incidents-container')
-        ], className='incidents-section'),
+        html.Div(
+            [
+                html.H3("Alle TI-Komponenten", className='ci-all-title'),
+                html.Div(
+                    [
+                        dcc.Input(
+                            id='ci-all-filter',
+                            type='text',
+                            placeholder=
+                            'CIs filtern (CI, Organisation oder Produkt)',
+                            style={
+                                'width': '100%',
+                                'boxSizing': 'border-box',
+                                'marginBottom': '16px',
+                                'padding': '8px 12px',
+                                'borderRadius': '6px',
+                                # Kontrast im Dark Mode: Farben von der Umgebung erben
+                                'backgroundColor': 'transparent',
+                                'color': 'inherit',
+                                'border': '1px solid rgba(128,128,128,0.35)'
+                            },
+                            className='incidents-filter-input'),
+                        # Sortierzustand (Spalte & Richtung) persistieren
+                        dcc.Store(id='ci-sort-state',
+                                  data={
+                                      'by': 'ci',
+                                      'asc': True
+                                  }),
+                        html.Div(
+                            id='ci-all-table-container',
+                            style={
+                                'maxHeight': '260px',  # ~5 Zeilen sichtbar
+                                'overflowY': 'auto'
+                            })
+                    ],
+                    className='incidents-container')
+            ],
+            className='incidents-section'),
 
         # Heatmap: zeitliche Verteilung der Incidents (letzte 30 Tage)
         html.Div([
-            html.H3("Zeitliche Verteilung der Incidents (30 Tage)", className='stats-title'),
+            html.H3("Zeitliche Verteilung der Incidents (30 Tage)",
+                    className='stats-title'),
             dcc.Store(id='incident-heatmap-cache', data=None),
-            dcc.Interval(id='incident-heatmap-refresh', interval=900000, n_intervals=0),
+            dcc.Interval(
+                id='incident-heatmap-refresh', interval=900000, n_intervals=0),
             html.Div([
-                dcc.Graph(id='incident-heatmap', config={'displayModeBar': False})
-            ], className='incidents-container'),
-        ], className='incidents-section')
-        ,
-        html.Div([
-            html.Span('Hinweis', style={'fontWeight': '600', 'marginRight': '6px'}),
-            html.Br(),
-            html.Span('Zu den ausführlichen '),
-            html.A('Statistiken', href='/stats')
-        ], className='warning-message')
+                dcc.Graph(id='incident-heatmap',
+                          config={'displayModeBar': False})
+            ],
+                     className='incidents-container'),
+        ],
+                 className='incidents-section'),
+        html.P([
+            'Diese Seite informiert dich über den aktuellen Status und langfristige Verfügbarkeits-Trends von IT-Diensten des deutschen öffentlichen Gesundheitssystems (Telematik Infrastruktur, TI). Das Projekt basiert auf Lukas Schmidt-Russnaks ',
+            html.A('TI-Monitoring', href='https://ti-monitoring.de'),
+            ', welches mit Statistiken, Benachrichtigungen etc. umfangreich erweitert und angepasst wurde. Daten werden alle 5 Minuten aktualisiert und derzeit für 6 Monate gespeichert.'
+        ]),
+        html.P([
+            'Du hast auch die Möglichkeit, Benachrichtigungen individuell zu ',
+            html.A('abonnieren', href='/notifications'),
+            '. Diese werden dir über deinen persönlichen Apprise-Link gesendet, wenn sich der Status einer der abonierten Komponenten ändert. ',
+            'Zu den ausführlichen ',
+            html.A('Statistiken', href='/stats'),
+            '.'
+        ])
     ])
 
     # Cache and return
     _home_layout_cache = layout
     _home_layout_cache_ts = time.time()
     return layout
+
 
 layout = serve_layout
 
@@ -415,11 +458,12 @@ def _format_minutes_to_human(minutes: float) -> str:
         return "0 Min"
 
 
-@callback(
-    Output('ci-all-table-container', 'children'),
-    [Input('incidents-data-store', 'data'), Input('ci-all-filter', 'value'), Input('ci-sort-state', 'data')],
-    prevent_initial_call=False
-)
+@callback(Output('ci-all-table-container', 'children'), [
+    Input('incidents-data-store', 'data'),
+    Input('ci-all-filter', 'value'),
+    Input('ci-sort-state', 'data')
+],
+          prevent_initial_call=False)
 def render_ci_all_table(_, filter_text, sort_state):
     try:
         # Daten inkl. Downtimes aus DB laden
@@ -434,13 +478,18 @@ def render_ci_all_table(_, filter_text, sort_state):
             by = (sort_state or {}).get('by', 'ci')
             asc = bool((sort_state or {}).get('asc', True))
             if by in ['ci', 'organization', 'product', 'name']:
-                df = df.sort_values([by, 'ci'] if by != 'ci' else ['ci'], ascending=[asc, True] if by != 'ci' else asc)
+                df = df.sort_values(
+                    [by, 'ci'] if by != 'ci' else ['ci'],
+                    ascending=[asc, True] if by != 'ci' else asc)
             elif by == 'downtime_7d_min':
-                df = df.sort_values(['downtime_7d_min', 'ci'], ascending=[asc, True])
+                df = df.sort_values(['downtime_7d_min', 'ci'],
+                                    ascending=[asc, True])
             elif by == 'downtime_30d_min':
-                df = df.sort_values(['downtime_30d_min', 'ci'], ascending=[asc, True])
+                df = df.sort_values(['downtime_30d_min', 'ci'],
+                                    ascending=[asc, True])
             elif by == 'current_availability':
-                df = df.sort_values(['current_availability', 'ci'], ascending=[asc, True])
+                df = df.sort_values(['current_availability', 'ci'],
+                                    ascending=[asc, True])
             else:
                 df = df.sort_values('ci')
         except Exception:
@@ -451,16 +500,16 @@ def render_ci_all_table(_, filter_text, sort_state):
         # Filter anwenden über CI und Organisation/Produkt/Name
         if filter_text:
             f = str(filter_text).strip().lower()
+
             def match_row(r):
                 try:
-                    return (
-                        f in str(r.get('ci','')).lower() or
-                        f in str(r.get('organization','')).lower() or
-                        f in str(r.get('product','')).lower() or
-                        f in str(r.get('name','')).lower()
-                    )
+                    return (f in str(r.get('ci', '')).lower()
+                            or f in str(r.get('organization', '')).lower()
+                            or f in str(r.get('product', '')).lower()
+                            or f in str(r.get('name', '')).lower())
                 except Exception:
                     return False
+
             try:
                 df = df[[match_row(row) for _, row in df.iterrows()]]
             except Exception:
@@ -476,65 +525,131 @@ def render_ci_all_table(_, filter_text, sort_state):
             status_class = 'available' if status == 1 else 'unavailable'
             status_text = 'Verfügbar' if status == 1 else 'Gestört'
 
-            rows.append(html.Tr([
-                html.Td([
-                    html.A(str(row.get('ci', '')), href=f"/plot?ci={str(row.get('ci',''))}", className='ci-link'),
-                    html.Br(),
-                    html.Span(str(row.get('name', '')), className='ci-name')
-                ]),
-                html.Td([
-                    html.Span(str(row.get('organization', '')), className='org-name'),
-                    html.Br(),
-                    html.Span(str(row.get('product', '')), className='product-name')
-                ]),
-                html.Td(_format_minutes_to_human(row.get('downtime_7d_min'))),
-                html.Td(_format_minutes_to_human(row.get('downtime_30d_min'))),
-                html.Td(html.Span(status_text, className=f'status-badge {status_class}'))
-            ]))
+            rows.append(
+                html.Tr([
+                    html.Td([
+                        html.A(str(row.get('ci', '')),
+                               href=f"/plot?ci={str(row.get('ci',''))}",
+                               className='ci-link'),
+                        html.Br(),
+                        html.Span(str(row.get('name', '')),
+                                  className='ci-name')
+                    ]),
+                    html.Td([
+                        html.Span(str(row.get('organization', '')),
+                                  className='org-name'),
+                        html.Br(),
+                        html.Span(str(row.get('product', '')),
+                                  className='product-name')
+                    ]),
+                    html.Td(
+                        _format_minutes_to_human(row.get('downtime_7d_min'))),
+                    html.Td(
+                        _format_minutes_to_human(row.get('downtime_30d_min'))),
+                    html.Td(
+                        html.Span(status_text,
+                                  className=f'status-badge {status_class}'))
+                ]))
 
         # Sortierbare Header (einfaches clientseitiges State-Pattern via hidden dcc.Store)
         def sort_header(label, col_key, current, min_width=None):
             is_active = (current.get('by') == col_key)
             asc_active = is_active and current.get('asc', True)
             desc_active = is_active and not current.get('asc', True)
-            arrow_style_base = {'border': 'none', 'background': 'transparent', 'cursor': 'pointer', 'padding': '0 4px', 'fontSize': '10px', 'lineHeight': '1'}
-            asc_style = arrow_style_base | ({'color': '#60a5fa'} if asc_active else {'color': 'inherit'})
-            desc_style = arrow_style_base | ({'color': '#60a5fa'} if desc_active else {'color': 'inherit'})
-            th_style = {'whiteSpace': 'nowrap', 'verticalAlign': 'middle', 'paddingRight': '8px', 'paddingLeft': '8px', 'minWidth': min_width or 'auto'}
+            arrow_style_base = {
+                'border': 'none',
+                'background': 'transparent',
+                'cursor': 'pointer',
+                'padding': '0 4px',
+                'fontSize': '10px',
+                'lineHeight': '1'
+            }
+            asc_style = arrow_style_base | ({
+                'color': '#60a5fa'
+            } if asc_active else {
+                'color': 'inherit'
+            })
+            desc_style = arrow_style_base | ({
+                'color': '#60a5fa'
+            } if desc_active else {
+                'color': 'inherit'
+            })
+            th_style = {
+                'whiteSpace': 'nowrap',
+                'verticalAlign': 'middle',
+                'paddingRight': '8px',
+                'paddingLeft': '8px',
+                'minWidth': min_width or 'auto'
+            }
             return html.Th([
                 html.Span(label),
                 html.Span([
-                    html.Button('▲', id={'type': 'ci-sort', 'col': col_key, 'dir': 'asc'}, n_clicks=0, style=asc_style, className='table-sort-btn'),
-                    html.Button('▼', id={'type': 'ci-sort', 'col': col_key, 'dir': 'desc'}, n_clicks=0, style=desc_style, className='table-sort-btn')
-                ], style={'float': 'right', 'display': 'inline-flex', 'gap': '2px'})
-            ], style=th_style)
+                    html.Button('▲',
+                                id={
+                                    'type': 'ci-sort',
+                                    'col': col_key,
+                                    'dir': 'asc'
+                                },
+                                n_clicks=0,
+                                style=asc_style,
+                                className='table-sort-btn'),
+                    html.Button('▼',
+                                id={
+                                    'type': 'ci-sort',
+                                    'col': col_key,
+                                    'dir': 'desc'
+                                },
+                                n_clicks=0,
+                                style=desc_style,
+                                className='table-sort-btn')
+                ],
+                          style={
+                              'float': 'right',
+                              'display': 'inline-flex',
+                              'gap': '2px'
+                          })
+            ],
+                           style=th_style)
 
         header = html.Thead([
             html.Tr([
                 sort_header('CI', 'ci', sort_state or {}, min_width='120px'),
-                sort_header('Organisation · Produkt', 'organization', sort_state or {}, min_width='260px'),
-                sort_header('Down 7 Tage', 'downtime_7d_min', sort_state or {}, min_width='140px'),
-                sort_header('Down 30 Tage', 'downtime_30d_min', sort_state or {}, min_width='140px'),
-                sort_header('Status', 'current_availability', sort_state or {}, min_width='120px')
+                sort_header('Organisation · Produkt',
+                            'organization',
+                            sort_state or {},
+                            min_width='260px'),
+                sort_header('Down 7 Tage',
+                            'downtime_7d_min',
+                            sort_state or {},
+                            min_width='140px'),
+                sort_header('Down 30 Tage',
+                            'downtime_30d_min',
+                            sort_state or {},
+                            min_width='140px'),
+                sort_header('Status',
+                            'current_availability',
+                            sort_state or {},
+                            min_width='120px')
             ])
         ])
-        table = html.Table([
-            header,
-            html.Tbody(rows)
-        ], className='incidents-table')
+        table = html.Table([header, html.Tbody(rows)],
+                           className='incidents-table')
 
         return table
     except Exception as e:
-        return html.Div(f'Fehler beim Laden der CI-Tabelle: {str(e)}', style={'color': 'red'})
+        return html.Div(f'Fehler beim Laden der CI-Tabelle: {str(e)}',
+                        style={'color': 'red'})
 
 
 # Sortier-Callback: toggelt Sortierzustand bei Header-Klicks
-@callback(
-    Output('ci-sort-state', 'data'),
-    Input({'type': 'ci-sort', 'col': ALL, 'dir': ALL}, 'n_clicks'),
-    State('ci-sort-state', 'data'),
-    prevent_initial_call=True
-)
+@callback(Output('ci-sort-state', 'data'),
+          Input({
+              'type': 'ci-sort',
+              'col': ALL,
+              'dir': ALL
+          }, 'n_clicks'),
+          State('ci-sort-state', 'data'),
+          prevent_initial_call=True)
 def toggle_ci_sort(_clicks, state):
     ctx = dash.callback_context
     state = state or {'by': 'ci', 'asc': True}
@@ -553,18 +668,19 @@ def toggle_ci_sort(_clicks, state):
 
 
 # Heatmap Callback (mit einfachem Cache im Store)
-@callback(
-    [Output('incident-heatmap-cache', 'data'), Output('incident-heatmap', 'figure')],
-    [Input('incident-heatmap-refresh', 'n_intervals')],
-    [State('incident-heatmap-cache', 'data')],
-    prevent_initial_call=False
-)
+@callback([
+    Output('incident-heatmap-cache', 'data'),
+    Output('incident-heatmap', 'figure')
+], [Input('incident-heatmap-refresh', 'n_intervals')],
+          [State('incident-heatmap-cache', 'data')],
+          prevent_initial_call=False)
 def render_incident_heatmap(_tick, cache_data):
     try:
         import pandas as _pd
         # Cache-Struktur: { 'ts': epoch, 'data': [{weekday,hour,count,ci_list}, ...] }
         df = None
-        if cache_data and isinstance(cache_data, dict) and 'data' in cache_data:
+        if cache_data and isinstance(cache_data,
+                                     dict) and 'data' in cache_data:
             try:
                 df = _pd.DataFrame(cache_data['data'])
             except Exception:
@@ -584,11 +700,13 @@ def render_incident_heatmap(_tick, cache_data):
         if (df is None or df.empty) and not refresh_df:
             try:
                 import os as _os, json as _json
-                _hm_path = _os.path.join(_os.path.dirname(__file__), '..', 'data', 'incident_heatmap.json')
+                _hm_path = _os.path.join(_os.path.dirname(__file__), '..',
+                                         'data', 'incident_heatmap.json')
                 if _os.path.exists(_hm_path):
                     with open(_hm_path, 'r', encoding='utf-8') as _f:
                         file_cache = _json.load(_f)
-                    if file_cache and isinstance(file_cache, dict) and 'data' in file_cache:
+                    if file_cache and isinstance(
+                            file_cache, dict) and 'data' in file_cache:
                         df = _pd.DataFrame(file_cache['data'])
                         cache_data = file_cache
             except Exception:
@@ -596,22 +714,33 @@ def render_incident_heatmap(_tick, cache_data):
         if refresh_df:
             df = get_incident_heatmap_data(30)
         # Achsen-Labels fest definieren
-        hours = list(range(0,24))
+        hours = list(range(0, 24))
         x_labels = [f"{h:02d}:00" for h in hours]
-        wdays = ['Mo','Di','Mi','Do','Fr','Sa','So']
+        wdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 
         # Zellen initialisieren (immer), damit Achsen korrekt sind
         z = [[0 for _ in hours] for _ in wdays]
         text = [["" for _ in hours] for _ in wdays]
         if df is None:
-            df = _pd.DataFrame(columns=['weekday','hour','count','ci_list'])
+            df = _pd.DataFrame(columns=['weekday', 'hour', 'count', 'ci_list'])
 
         # Datentypen erzwingen und Labels bilden
-        weekday_labels = {1:'Mo',2:'Di',3:'Mi',4:'Do',5:'Fr',6:'Sa',7:'So'}
+        weekday_labels = {
+            1: 'Mo',
+            2: 'Di',
+            3: 'Mi',
+            4: 'Do',
+            5: 'Fr',
+            6: 'Sa',
+            7: 'So'
+        }
         try:
-            df['weekday'] = _pd.to_numeric(df.get('weekday'), errors='coerce').fillna(0).astype(int)
-            df['hour'] = _pd.to_numeric(df.get('hour'), errors='coerce').fillna(-1).astype(int)
-            df['count'] = _pd.to_numeric(df.get('count'), errors='coerce').fillna(0).astype(int)
+            df['weekday'] = _pd.to_numeric(
+                df.get('weekday'), errors='coerce').fillna(0).astype(int)
+            df['hour'] = _pd.to_numeric(df.get('hour'),
+                                        errors='coerce').fillna(-1).astype(int)
+            df['count'] = _pd.to_numeric(df.get('count'),
+                                         errors='coerce').fillna(0).astype(int)
         except Exception:
             pass
         df['wlabel'] = df['weekday'].map(weekday_labels)
@@ -627,10 +756,17 @@ def render_incident_heatmap(_tick, cache_data):
             try:
                 df['tooltip'] = df.apply(tip, axis=1)
                 # Pivot über Pandas (robust)
-                pv = df.pivot_table(index='wlabel', columns='hour', values='count', aggfunc='sum', fill_value=0)
+                pv = df.pivot_table(index='wlabel',
+                                    columns='hour',
+                                    values='count',
+                                    aggfunc='sum',
+                                    fill_value=0)
                 pv = pv.reindex(index=wdays, columns=hours, fill_value=0)
                 z = pv.values.tolist()
-                tool = df.pivot_table(index='wlabel', columns='hour', values='tooltip', aggfunc='first')
+                tool = df.pivot_table(index='wlabel',
+                                      columns='hour',
+                                      values='tooltip',
+                                      aggfunc='first')
                 tool = tool.reindex(index=wdays, columns=hours)
                 text = tool.fillna("").values.tolist()
             except Exception:
@@ -642,29 +778,43 @@ def render_incident_heatmap(_tick, cache_data):
         fig = go.Figure(data=go.Heatmap(
             z=z,
             x=x_labels,  # 0-23
-            y=wdays,     # Mo-So
+            y=wdays,  # Mo-So
             colorscale='YlOrRd',
             hoverinfo='text',
             text=text,
             colorbar=dict(title='Incidents'),
             zmin=0,
-            zmax=max_count if max_count > 0 else 1
-        ))
+            zmax=max_count if max_count > 0 else 1))
         fig.update_layout(
             height=360,
-            margin=dict(l=40,r=20,t=30,b=40),
-            xaxis=dict(title='Stunde', type='category', categoryorder='array', categoryarray=x_labels),
-            yaxis=dict(title='Wochentag', type='category', categoryorder='array', categoryarray=wdays),
+            margin=dict(l=40, r=20, t=30, b=40),
+            xaxis=dict(title='Stunde',
+                       type='category',
+                       categoryorder='array',
+                       categoryarray=x_labels),
+            yaxis=dict(title='Wochentag',
+                       type='category',
+                       categoryorder='array',
+                       categoryarray=wdays),
             # Make backgrounds transparent so CSS can provide proper light/dark contrast
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
-        )
+            plot_bgcolor='rgba(0,0,0,0)')
         # Neues Cache-Paket bauen
         try:
             import time as _time
-            cache_out = {'ts': _time.time(), 'data': df[['weekday','hour','count','ci_list']].to_dict('records')}
+            cache_out = {
+                'ts':
+                _time.time(),
+                'data':
+                df[['weekday', 'hour', 'count', 'ci_list']].to_dict('records')
+            }
         except Exception:
             cache_out = cache_data
         return cache_out, fig
     except Exception:
-        return cache_data, go.Figure(data=[], layout=go.Layout(height=260, margin=dict(l=20,r=20,t=30,b=20)))
+        return cache_data, go.Figure(data=[],
+                                     layout=go.Layout(height=260,
+                                                      margin=dict(l=20,
+                                                                  r=20,
+                                                                  t=30,
+                                                                  b=20)))
