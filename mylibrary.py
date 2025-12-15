@@ -363,6 +363,12 @@ def run_db_migrations():
                 computed_at TIMESTAMPTZ DEFAULT NOW()
             )
         """)
+        
+        # 8) Add enabled column to ci_metadata (for filtering CIs in display)
+        cur.execute("""
+            ALTER TABLE IF EXISTS ci_metadata
+              ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE
+        """)
         cur.execute("""
             CREATE INDEX IF NOT EXISTS idx_ci_downtimes_computed_at ON ci_downtimes(computed_at)
         """)
@@ -403,11 +409,16 @@ def run_db_migrations():
             pass
         conn.commit()
 
-def get_timescaledb_ci_data() -> pd.DataFrame:
-    """Lädt CI-Daten aus TimescaleDB für Statistiken."""
+def get_timescaledb_ci_data(only_enabled: bool = True) -> pd.DataFrame:
+    """Lädt CI-Daten aus TimescaleDB für Statistiken.
+    
+    Args:
+        only_enabled: If True, only return CIs where enabled=true in ci_metadata
+    """
     with get_db_conn() as conn:
         # Lade alle CIs mit ihren aktuellen Status und Metadaten
-        query = """
+        enabled_filter = "WHERE COALESCE(cm.enabled, TRUE) = TRUE" if only_enabled else ""
+        query = f"""
         WITH latest_status AS (
             SELECT DISTINCT ON (ci) 
                 ci, 
@@ -417,7 +428,7 @@ def get_timescaledb_ci_data() -> pd.DataFrame:
             FROM measurements 
             ORDER BY ci, ts DESC
         ),
-        ci_metadata AS (
+        ci_meta AS (
             SELECT 
                 ci,
                 name,
@@ -426,7 +437,8 @@ def get_timescaledb_ci_data() -> pd.DataFrame:
                 bu,
                 tid,
                 pdt,
-                comment
+                comment,
+                COALESCE(enabled, TRUE) as enabled
             FROM ci_metadata
         )
         SELECT 
@@ -445,7 +457,8 @@ def get_timescaledb_ci_data() -> pd.DataFrame:
                 ELSE 0 
             END as availability_difference
         FROM latest_status ls
-        LEFT JOIN ci_metadata cm ON ls.ci = cm.ci
+        LEFT JOIN ci_meta cm ON ls.ci = cm.ci
+        {enabled_filter}
         ORDER BY ls.ci
         """
         with conn.cursor() as cur:
@@ -456,12 +469,30 @@ def get_timescaledb_ci_data() -> pd.DataFrame:
                 'bu', 'tid', 'pdt', 'comment', 'availability_difference'
             ])
 
-def get_recent_incidents(limit: int = 5) -> list:
-    """Lädt die letzten Incidents aus TimescaleDB mit Status-Informationen."""
+def get_recent_incidents(limit: int = 5, only_enabled: bool = True, only_ongoing: bool = False, hours_back: int = None) -> list:
+    """Lädt Incidents aus TimescaleDB mit Status-Informationen.
+    
+    Args:
+        limit: Maximum number of incidents to return
+        only_enabled: If True, only return incidents for enabled CIs
+        only_ongoing: If True, only return ongoing (not resolved) incidents
+        hours_back: If set, only return incidents from the last N hours
+    """
     import gc
     
     with get_db_conn() as conn:
-        incidents_query = """
+        # Build WHERE conditions
+        where_conditions = []
+        if only_ongoing:
+            where_conditions.append("i.status = 'ongoing'")
+        if hours_back:
+            where_conditions.append(f"i.incident_start >= NOW() - INTERVAL '{hours_back} hours'")
+        if only_enabled:
+            where_conditions.append("COALESCE(cm.enabled, TRUE) = TRUE")
+        
+        where_clause = f"WHERE {' AND '.join(where_conditions)}" if where_conditions else ""
+        
+        incidents_query = f"""
         WITH incident_transitions AS (
             SELECT 
                 ci,
@@ -501,6 +532,7 @@ def get_recent_incidents(limit: int = 5) -> list:
             cm.product
         FROM incidents i
         LEFT JOIN ci_metadata cm ON i.ci = cm.ci
+        {where_clause}
         ORDER BY i.incident_start DESC
         LIMIT %s
         """
