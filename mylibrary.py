@@ -1197,6 +1197,7 @@ def get_all_cis_with_downtimes() -> pd.DataFrame:
             FROM ci_metadata cm
             LEFT JOIN latest_status ls ON cm.ci = ls.ci
             LEFT JOIN ci_downtimes cd ON cm.ci = cd.ci
+            WHERE cm.enabled = TRUE
             ORDER BY cm.ci
             """
             with conn.cursor() as cur:
