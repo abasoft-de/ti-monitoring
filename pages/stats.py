@@ -540,7 +540,7 @@ def serve_layout():
                     css=[
                         {
                             'selector': '.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner table',
-                            'rule': 'cursor: pointer; border-collapse: collapse;'
+                            'rule': 'cursor: pointer; border-collapse: collapse; width: 100%;'
                         },
                         {
                             'selector': '.dash-table-container',
@@ -551,8 +551,20 @@ def serve_layout():
                             'rule': 'min-width: 600px;'
                         },
                         {
-                            'selector': 'tr:hover td',
+                            'selector': '.dash-spreadsheet-inner tr:hover td',
                             'rule': 'background-color: #f8fafc !important;'
+                        },
+                        {
+                            'selector': '.dash-header',
+                            'rule': 'background-color: #f8fafc !important; text-transform: uppercase !important; font-size: 12px !important; letter-spacing: 0.5px !important; font-weight: 600 !important; color: #475569 !important; padding: 12px 16px !important; border-bottom: 2px solid #e2e8f0 !important;'
+                        },
+                        {
+                            'selector': 'td.dash-cell',
+                            'rule': 'border: none !important; border-bottom: 1px solid #f1f5f9 !important; padding: 12px 16px !important; color: #334155 !important; vertical-align: middle !important;'
+                        },
+                        {
+                            'selector': 'th.dash-header',
+                            'rule': 'border: none !important; border-bottom: 2px solid #e2e8f0 !important;'
                         }
                     ],
                     tooltip_data=[
